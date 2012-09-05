@@ -20,6 +20,7 @@
 package org.apache.ftpserver.listener.nio;
 
 import org.apache.mina.core.session.IoSession;
+import org.apache.mina.filter.logging.LogLevel;
 import org.apache.mina.filter.logging.LoggingFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +59,15 @@ public class FtpLoggingFilter extends LoggingFilter {
         super(name);
         
         logger = LoggerFactory.getLogger(name);
+
+        // SEEBURGER: Fixed logging levels
+        setSessionClosedLogLevel(LogLevel.DEBUG);
+        setSessionIdleLogLevel(LogLevel.DEBUG);
+        setSessionOpenedLogLevel(LogLevel.DEBUG);
+        setSessionCreatedLogLevel(LogLevel.DEBUG);
+        setMessageSentLogLevel(LogLevel.DEBUG);
+        setMessageReceivedLogLevel(LogLevel.DEBUG);
+        setExceptionCaughtLogLevel(LogLevel.WARN);
     }
 
     /**
