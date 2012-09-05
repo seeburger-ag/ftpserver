@@ -311,7 +311,8 @@ public class IODataConnectionFactory implements ServerDataConnectionFactory {
                 LOG.debug("Binding active data connection to {}", localSocketAddress);
                 dataSoc.bind(localSocketAddress);
 
-                dataSoc.connect(new InetSocketAddress(address, port));
+                // SEEBURGER: set socket connect timeout
+                dataSoc.connect(new InetSocketAddress(address, port), dataConfig.getIdleTime() * 1000);
             } else {
 
                 if (secure) {
