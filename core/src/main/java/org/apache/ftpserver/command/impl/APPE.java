@@ -66,6 +66,12 @@ public class APPE extends AbstractCommand {
             throws IOException, FtpException {
 
         try {
+            // SEEBURGER: in encryption mode files can't be modified
+            if (!session.getFileSystemView().isRandomAccessible())
+            {
+                session.write(new DefaultFtpReply(550, "APPE not available in encryption mode"));
+                return;
+            }
 
             // reset state variables
             session.resetState();

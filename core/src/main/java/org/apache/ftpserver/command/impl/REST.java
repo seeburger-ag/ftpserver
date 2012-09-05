@@ -22,6 +22,7 @@ package org.apache.ftpserver.command.impl;
 import java.io.IOException;
 
 import org.apache.ftpserver.command.AbstractCommand;
+import org.apache.ftpserver.ftplet.DefaultFtpReply;
 import org.apache.ftpserver.ftplet.FtpReply;
 import org.apache.ftpserver.ftplet.FtpRequest;
 import org.apache.ftpserver.impl.FtpIoSession;
@@ -69,6 +70,13 @@ public class REST extends AbstractCommand {
         try {
             skipLen = Long.parseLong(argument);
 
+            // SEEBURGER: in encryption mode files can't be modified
+            if (!session.getFileSystemView().isRandomAccessible() && skipLen != 0)
+            {
+                session.write(new DefaultFtpReply(550, "REST offset > 0 not available in encryption mode"));
+                return;
+            }
+
             // check offset number
             if (skipLen < 0L) {
                 skipLen = 0L;
@@ -95,6 +103,9 @@ public class REST extends AbstractCommand {
             session.write(LocalizedFtpReply.translate(session, request, context,
                     FtpReply.REPLY_501_SYNTAX_ERROR_IN_PARAMETERS_OR_ARGUMENTS,
                     "REST.invalid", null));
+        } catch (Exception e) {
+            LOG.error("Error on REST: " + e.getMessage());
+            session.write(new DefaultFtpReply(550, "REST offset > 0 not available in encryption mode"));
         }
 
         session.setFileOffset(skipLen);
