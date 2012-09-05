@@ -18,19 +18,19 @@
 	<description>Spring-DM based OSGi bundle that starts an FtpServer and looks for a published Ftplet service.</description>
 	<parent>
 		<artifactId>ftpserver-parent</artifactId>
-		<groupId>org.apache.ftpserver</groupId>
-		<version>1.0.6</version>
+		<groupId>com.seeburger.apache.ftpserver</groupId>
+		<version>1.0.6.SEE1-SNAPSHOT</version>
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.apache.ftpserver.examples</groupId>
+	<groupId>com.seeburger.apache.ftpserver.examples</groupId>
 	<artifactId>ftpserver-osgi-spring-service</artifactId>
 	<name>FtpServer OSGi Spring-DM example</name>
 	<packaging>bundle</packaging>
-	<version>1.0.6</version>
+	<version>1.0.6.SEE1-SNAPSHOT</version>
 	<dependencies>
 		<dependency>
-			<groupId>org.apache.ftpserver</groupId>
+			<groupId>com.seeburger.apache.ftpserver</groupId>
 			<artifactId>ftpserver-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>

@@ -7,15 +7,15 @@
  to you under the Apache License, Version 2.0 (the
  "License"); you may not use this file except in compliance
  with the License.  You may obtain a copy of the License at
- 
+
    http://www.apache.org/licenses/LICENSE-2.0
- 
+
  Unless required by applicable law or agreed to in writing,
  software distributed under the License is distributed on an
  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  KIND, either express or implied.  See the License for the
  specific language governing permissions and limitations
- under the License. -->  
+ under the License. -->
 
 <project>
   <parent>
@@ -24,11 +24,11 @@
     <version>9</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.apache.ftpserver</groupId>
+  <groupId>com.seeburger.apache.ftpserver</groupId>
   <artifactId>ftpserver-parent</artifactId>
   <packaging>pom</packaging>
   <name>Apache FtpServer Parent</name>
-  <version>1.0.6</version>
+  <version>1.0.6.SEE1-SNAPSHOT</version>
   <url>http://mina.apache.org/ftpserver</url>
   <issueManagement>
     <system>Jira</system>
@@ -195,7 +195,7 @@
         <artifactId>junit</artifactId>
         <version>3.8.2</version>
       </dependency>
- 
+
       <dependency>
         <groupId>commons-net</groupId>
         <artifactId>commons-net</artifactId>
@@ -207,7 +207,7 @@
         <artifactId>slf4j-log4j12</artifactId>
         <version>1.5.2</version>
       </dependency>
-    
+
       <dependency>
         <groupId>log4j</groupId>
         <artifactId>log4j</artifactId>
@@ -255,6 +255,11 @@
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.4.3</version>
+
+        <!-- SEEBURGER fixes unit tests -->
+        <configuration>
+          <forkMode>never</forkMode>
+        </configuration>
       </plugin>
 
       <plugin>
@@ -420,4 +425,16 @@
     <maven.compile.source>1.5</maven.compile.source>
     <maven.compile.target>1.5</maven.compile.target>
   </properties>
+
+  <!-- SEEBURGER repository changes -->
+  <distributionManagement>
+    <repository>
+      <id>release</id>
+      <url>http://repo.seeburger.de/archiva/repository/release/</url>
+    </repository>
+    <snapshotRepository>
+      <id>snapshot</id>
+      <url>http://repo.seeburger.de/archiva/repository/snapshot/</url>
+    </snapshotRepository>
+  </distributionManagement>
 </project>

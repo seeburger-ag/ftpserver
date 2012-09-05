@@ -21,15 +21,15 @@
 <project>
   <parent>
     <artifactId>ftpserver-parent</artifactId>
-    <groupId>org.apache.ftpserver</groupId>
-    <version>1.0.6</version>
+    <groupId>com.seeburger.apache.ftpserver</groupId>
+    <version>1.0.6.SEE1-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.apache.ftpserver</groupId>
+  <groupId>com.seeburger.apache.ftpserver</groupId>
   <artifactId>ftpserver</artifactId>
   <packaging>pom</packaging>
   <name>Apache FtpServer</name>
-  <version>1.0.6</version>
+  <version>1.0.6.SEE1-SNAPSHOT</version>
   <scm>
     <connection>scm:svn:http://svn.apache.org/repos/asf/mina/ftpserver/trunk/distribution</connection>
     <developerConnection>scm:svn:https://svn.apache.org/repos/asf/mina/ftpserver/trunk/distribution</developerConnection>
@@ -86,11 +86,11 @@
   </build>
   <dependencies>
     <dependency>
-      <groupId>org.apache.ftpserver</groupId>
+      <groupId>com.seeburger.apache.ftpserver</groupId>
       <artifactId>ftplet-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.ftpserver</groupId>
+      <groupId>com.seeburger.apache.ftpserver</groupId>
       <artifactId>ftpserver-core</artifactId>
     </dependency>
     <dependency>
