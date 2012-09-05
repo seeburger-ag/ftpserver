@@ -125,7 +125,8 @@ public class NioListener extends AbstractListener {
                 address = new InetSocketAddress(getPort());
             }
     
-            acceptor.setReuseAddress(true);
+            // SEEBURGER: disable socket reuse (FTPSERVER-109)
+            acceptor.setReuseAddress(false);
             acceptor.getSessionConfig().setReadBufferSize(2048);
             acceptor.getSessionConfig().setIdleTime(IdleStatus.BOTH_IDLE,
                     getIdleTimeout());
