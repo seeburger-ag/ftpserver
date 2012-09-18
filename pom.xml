@@ -127,9 +127,9 @@
   </contributors>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/mina/ftpserver/trunk</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/mina/ftpserver/trunk</developerConnection>
-    <url>http://svn.apache.org/viewvc/mina/ftpserver/trunk</url>
+    <connection>scm:git:git@github.com:seeburger-ag/ftpserver.git</connection>
+    <developerConnection>scm:git:git@github.com:seeburger-ag/ftpserver.git</developerConnection>
+    <url>scm:git:git@github.com:seeburger-ag/ftpserver.git</url>
   </scm>
 
   <dependencyManagement>
@@ -312,6 +312,16 @@
 	    <groupId>org.codehaus.mojo</groupId>
 	    <artifactId>rat-maven-plugin</artifactId>
 	    <version>1.0-alpha-3</version>
+	    <configuration>
+            <excludes>
+                <exclude>**</exclude>
+                <exclude>.git</exclude>
+                <exclude>test-tmp</exclude>
+                <exclude>cut.log</exclude>
+                <exclude>pom.xml.tag</exclude>
+                <exclude>pom.xml.releaseBackup</exclude>
+            </excludes>
+        </configuration>
 	  </plugin>
 
       <plugin>
@@ -348,6 +358,19 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-war-plugin</artifactId>
           <version>2.0.2</version>
+      </plugin>
+
+      <plugin>
+          <artifactId>maven-gpg-plugin</artifactId>
+          <configuration>
+            <skip>true</skip>
+          </configuration>
+      </plugin>
+      <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <configuration>
+            <skip>true</skip>
+          </configuration>
       </plugin>
     </plugins>
   </build>

@@ -94,6 +94,7 @@
 				<configuration>
 					<excludes>
 						<exclude>res/user.gen</exclude>
+                        <exclude>*</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
