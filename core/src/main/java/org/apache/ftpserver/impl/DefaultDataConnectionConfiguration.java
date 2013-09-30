@@ -19,6 +19,9 @@
 
 package org.apache.ftpserver.impl;
 
+import javax.net.ServerSocketFactory;
+import javax.net.SocketFactory;
+
 import org.apache.ftpserver.DataConnectionConfiguration;
 import org.apache.ftpserver.DataConnectionConfigurationFactory;
 import org.apache.ftpserver.ssl.SslConfiguration;
@@ -48,6 +51,9 @@ public class DefaultDataConnectionConfiguration implements
     
     private final boolean implicitSsl;
 
+    private SocketFactory socketFactory = null;
+    private ServerSocketFactory serverSocketFactory = null;
+
     /**
      * Internal constructor, do not use directly. Use {@link DataConnectionConfigurationFactory} instead.
      */
@@ -55,7 +61,8 @@ public class DefaultDataConnectionConfiguration implements
             SslConfiguration ssl, boolean activeEnabled, boolean activeIpCheck,
             String activeLocalAddress, int activeLocalPort,
             String passiveAddress, PassivePorts passivePorts,
-            String passiveExternalAddress, boolean implicitSsl) {
+            String passiveExternalAddress, boolean implicitSsl,
+            SocketFactory socketFactory, ServerSocketFactory serverSocketFactory) {
         this.idleTime = idleTime;
         this.ssl = ssl;
         this.activeEnabled = activeEnabled;
@@ -66,6 +73,8 @@ public class DefaultDataConnectionConfiguration implements
         this.passivePorts = passivePorts;
         this.passiveExternalAddress = passiveExternalAddress;
         this.implicitSsl = implicitSsl;
+        this.socketFactory = socketFactory;
+        this.serverSocketFactory = serverSocketFactory;
     }
 
     /**
@@ -153,5 +162,21 @@ public class DefaultDataConnectionConfiguration implements
      */
     public boolean isImplicitSsl() {
         return implicitSsl;
+    }
+
+    /**
+     * @see org.apache.ftpserver.DataConnectionConfiguration#getSocketFactory()
+     */
+    public SocketFactory getSocketFactory()
+    {
+        return socketFactory;
+    }
+
+    /**
+     * @see org.apache.ftpserver.DataConnectionConfiguration#getServerSocketFactory()
+     */
+    public ServerSocketFactory getServerSocketFactory()
+    {
+        return serverSocketFactory;
     }
 }

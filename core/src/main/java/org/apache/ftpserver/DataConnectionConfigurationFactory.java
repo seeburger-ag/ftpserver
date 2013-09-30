@@ -23,6 +23,9 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Collections;
 
+import javax.net.ServerSocketFactory;
+import javax.net.SocketFactory;
+
 import org.apache.ftpserver.impl.DefaultDataConnectionConfiguration;
 import org.apache.ftpserver.impl.PassivePorts;
 import org.apache.ftpserver.ssl.SslConfiguration;
@@ -52,6 +55,9 @@ public class DataConnectionConfigurationFactory {
     private PassivePorts passivePorts = new PassivePorts(Collections.<Integer>emptySet(), true);
     private boolean implicitSsl;
 
+    private SocketFactory socketFactory = null;
+    private ServerSocketFactory serverSocketFactory = null;
+
     /**
      * Create a {@link DataConnectionConfiguration} instance based on the 
      * configuration on this factory
@@ -63,7 +69,7 @@ public class DataConnectionConfigurationFactory {
                 ssl, activeEnabled, activeIpCheck,
                 activeLocalAddress, activeLocalPort,
                 passiveAddress, passivePorts,
-                passiveExternalAddress, implicitSsl);
+                passiveExternalAddress, implicitSsl,socketFactory,serverSocketFactory);
     }
     /*
      * (Non-Javadoc)
@@ -294,4 +300,41 @@ public class DataConnectionConfigurationFactory {
     public void setImplicitSsl(boolean implicitSsl) {
         this.implicitSsl = implicitSsl;
     }
+
+    /**
+     * returns a custom SocketFactory if set or null
+     * @return SocketFactory
+     */
+    public SocketFactory getSocketFactory()
+    {
+        return socketFactory;
+    }
+
+    /**
+     * Set a custom SocketFactory to be used for active data connection
+     * @param socketFactory
+     */
+    public void setSocketFactory(SocketFactory socketFactory)
+    {
+        this.socketFactory = socketFactory;
+    }
+
+    /**
+     * returns a custom ServerSocketFactory if set or null
+     * @return ServerSocketFactory
+     */
+    public ServerSocketFactory getServerSocketFactory()
+    {
+        return serverSocketFactory;
+    }
+
+    /**
+     * Set a custom ServerSocketFactory to be used for passive data connection
+     * @param serverSocketFactory
+     */
+    public void setServerSocketFactory(ServerSocketFactory serverSocketFactory)
+    {
+        this.serverSocketFactory = serverSocketFactory;
+    }
+
 }

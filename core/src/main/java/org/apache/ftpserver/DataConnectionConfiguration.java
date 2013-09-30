@@ -21,6 +21,9 @@ package org.apache.ftpserver;
 
 import java.net.InetAddress;
 
+import javax.net.ServerSocketFactory;
+import javax.net.SocketFactory;
+
 import org.apache.ftpserver.ssl.SslConfiguration;
 
 /**
@@ -114,4 +117,16 @@ public interface DataConnectionConfiguration {
      * @return True if SSL is mandatory for the data channel
      */
     boolean isImplicitSsl();
+
+    /*
+     * Get custom SocketFactory for this data connection
+     * @return SocketFactory or null
+     */
+    SocketFactory getSocketFactory();
+
+    /*
+    * Get custom ServerSocketFactory for this data connection
+    * @return ServerSocketFactory or null
+    */
+   ServerSocketFactory getServerSocketFactory();
 }

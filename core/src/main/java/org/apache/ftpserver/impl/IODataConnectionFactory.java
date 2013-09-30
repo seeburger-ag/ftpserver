@@ -199,6 +199,9 @@ public class IODataConnectionFactory implements ServerDataConnectionFactory {
                 // (https://issues.apache.org/jira/browse/FTPSERVER-241).
                 // Instead, it creates a regular
                 // ServerSocket that will be wrapped as a SSL socket in createDataSocket()
+                if(dataCfg.getServerSocketFactory()!=null)
+                    servSoc = dataCfg.getServerSocketFactory().createServerSocket(passivePort, 0, address);
+                else
                 servSoc = new ServerSocket(passivePort, 0, address);
                 LOG
                         .debug(
@@ -209,6 +212,9 @@ public class IODataConnectionFactory implements ServerDataConnectionFactory {
                         .debug(
                                 "Opening passive data connection on address \"{}\" and port {}",
                                 address, passivePort);
+                if(dataCfg.getServerSocketFactory()!=null)
+                    servSoc = dataCfg.getServerSocketFactory().createServerSocket(passivePort, 0, address);
+                else
                 servSoc = new ServerSocket(passivePort, 0, address);
                 LOG
                         .debug(
@@ -293,6 +299,9 @@ public class IODataConnectionFactory implements ServerDataConnectionFactory {
                     dataSoc = ssoc;
                 } else {
                     LOG.debug("Opening active data connection");
+                    if(dataConfig.getSocketFactory()!=null)
+                        dataSoc = dataConfig.getSocketFactory().createSocket(address,port);
+                    else
                     dataSoc = new Socket();
                 }
 
@@ -309,10 +318,13 @@ public class IODataConnectionFactory implements ServerDataConnectionFactory {
                 SocketAddress localSocketAddress = new InetSocketAddress(localAddr, dataConfig.getActiveLocalPort());
 
                 LOG.debug("Binding active data connection to {}", localSocketAddress);
+                if(dataConfig.getSocketFactory()==null)
+                {
                 dataSoc.bind(localSocketAddress);
 
                 // SEEBURGER: set socket connect timeout
                 dataSoc.connect(new InetSocketAddress(address, port), dataConfig.getIdleTime() * 1000);
+                }
             } else {
 
                 if (secure) {
