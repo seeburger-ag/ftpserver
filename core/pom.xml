@@ -110,7 +110,7 @@
 			<artifactId>slf4j-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.mina</groupId>
+			<groupId>com.seeburger.apache.mina</groupId>
 			<artifactId>mina-core</artifactId>
 		</dependency>
 		<dependency>
