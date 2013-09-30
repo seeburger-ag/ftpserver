@@ -20,6 +20,7 @@
 package org.apache.ftpserver.listener;
 
 import java.net.InetAddress;
+import java.nio.channels.spi.SelectorProvider;
 import java.util.List;
 import java.util.Set;
 
@@ -171,4 +172,13 @@ public interface Listener {
 	 *         <code>null</code>.
 	 */
 	IpFilter getIpFilter();
+
+	/**
+	 * Returns the SelectorProvider associated with this listener. May return
+     * <code>null</code>.
+     *
+     * @return the SelectorProvider associated with this listener. May return
+     *         <code>null</code>.
+     */
+	SelectorProvider getSelectorProvider();
 }

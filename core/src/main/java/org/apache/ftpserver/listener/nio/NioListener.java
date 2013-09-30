@@ -22,6 +22,7 @@ package org.apache.ftpserver.listener.nio;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.nio.channels.spi.SelectorProvider;
 import java.security.GeneralSecurityException;
 import java.util.HashSet;
 import java.util.List;
@@ -104,6 +105,17 @@ public class NioListener extends AbstractListener {
     }
 
     /**
+     * Constructor for internal use, do not use directly. Instead use {@link ListenerFactory}
+     */
+    public NioListener(String serverAddress, int port,
+            boolean implicitSsl,
+            SslConfiguration sslConfiguration,
+            DataConnectionConfiguration dataConnectionConfig,
+            int idleTimeout, IpFilter ipFilter, SelectorProvider selectorProvider) {
+        super(serverAddress, port, implicitSsl, sslConfiguration, dataConnectionConfig,
+                idleTimeout, ipFilter, selectorProvider);
+    }
+    /**
      * @see Listener#start(FtpServerContext)
      */
     public synchronized void start(FtpServerContext context) {
@@ -117,7 +129,7 @@ public class NioListener extends AbstractListener {
             this.context = context;
     
             acceptor = new NioSocketAcceptor(Runtime.getRuntime()
-                    .availableProcessors());
+                    .availableProcessors(),getSelectorProvider());
     
             if (getServerAddress() != null) {
                 address = new InetSocketAddress(getServerAddress(), getPort());

@@ -20,6 +20,7 @@
 package org.apache.ftpserver.config.spring;
 
 import java.net.InetAddress;
+import java.nio.channels.spi.SelectorProvider;
 import java.util.List;
 import java.util.Set;
 
@@ -107,5 +108,10 @@ public class MyCustomListener implements Listener {
 	public IpFilter getIpFilter() {
 		return null;
 	}
+
+    public SelectorProvider getSelectorProvider()
+    {
+        return null;
+    }
 
 }

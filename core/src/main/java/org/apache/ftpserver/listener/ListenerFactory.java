@@ -21,6 +21,7 @@ package org.apache.ftpserver.listener;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.channels.spi.SelectorProvider;
 import java.util.List;
 
 import org.apache.ftpserver.DataConnectionConfiguration;
@@ -56,6 +57,7 @@ public class ListenerFactory {
 
     private List<Subnet> blockedSubnets;
     
+    private SelectorProvider selectorProvider = null;
     /**
      * The IP filter
      */
@@ -107,7 +109,7 @@ public class ListenerFactory {
     	}
     	else {
 	        return new NioListener(serverAddress, port, implicitSsl, ssl,
-	        	dataConnectionConfig, idleTimeout, ipFilter);
+	        	dataConnectionConfig, idleTimeout, ipFilter, selectorProvider);
     	}
     }
 
@@ -298,4 +300,25 @@ public class ListenerFactory {
 	public void setIpFilter(IpFilter ipFilter) {
 		this.ipFilter = ipFilter;
 	}
+
+	/**
+	 * Returns the custom SelectorProvider for NIO
+	 * @return the currently configured custom SelectorProvider, if any. Returns
+     *         <code>null</code>, if no custom SelectorProvider is configured.
+	 */
+    public SelectorProvider getSelectorProvider()
+    {
+        return selectorProvider;
+    }
+
+    /**
+     * Sets a custom SelectorProvider for NIO
+     * @param selectorProvider
+     */
+    public void setSelectorProvider(SelectorProvider selectorProvider)
+    {
+        this.selectorProvider = selectorProvider;
+    }
+
+
 }

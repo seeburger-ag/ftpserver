@@ -20,6 +20,7 @@
 package org.apache.ftpserver.listener.nio;
 
 import java.net.InetAddress;
+import java.nio.channels.spi.SelectorProvider;
 import java.util.List;
 
 import org.apache.ftpserver.DataConnectionConfiguration;
@@ -58,6 +59,8 @@ public abstract class AbstractListener implements Listener {
 
     private DataConnectionConfiguration dataConnectionConfig;
 
+    private SelectorProvider selectorProvider = null;
+
     /**
      * @deprecated Use the constructor with IpFilter instead. 
      * Constructor for internal use, do not use directly. Instead use {@link ListenerFactory}
@@ -87,6 +90,22 @@ public abstract class AbstractListener implements Listener {
         this.ipFilter = ipFilter;
     }
     
+    /**
+     * Constructor for internal use, do not use directly. Instead use {@link ListenerFactory}
+     */
+    public AbstractListener(String serverAddress, int port, boolean implicitSsl,
+            SslConfiguration sslConfiguration, DataConnectionConfiguration dataConnectionConfig,
+            int idleTimeout, IpFilter ipFilter, SelectorProvider selectorProvider) {
+        this.serverAddress = serverAddress;
+        this.port = port;
+        this.implicitSsl = implicitSsl;
+        this.dataConnectionConfig = dataConnectionConfig;
+        this.ssl = sslConfiguration;
+        this.idleTimeout = idleTimeout;
+        this.ipFilter = ipFilter;
+        this.selectorProvider = selectorProvider;
+    }
+
     /**
      * Creates an IpFilter that blacklists the given IP addresses and/or Subnets. 
      * @param blockedAddresses the addresses to block
@@ -185,4 +204,9 @@ public abstract class AbstractListener implements Listener {
     public IpFilter getIpFilter() {
     	return ipFilter;
     }
+
+    public SelectorProvider getSelectorProvider() {
+        return selectorProvider;
+    }
+
 }
