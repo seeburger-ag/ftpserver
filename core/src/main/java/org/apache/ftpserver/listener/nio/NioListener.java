@@ -115,6 +115,18 @@ public class NioListener extends AbstractListener {
         super(serverAddress, port, implicitSsl, sslConfiguration, dataConnectionConfig,
                 idleTimeout, ipFilter, selectorProvider);
     }
+    
+    /**
+     * Constructor for internal use, do not use directly. Instead use {@link ListenerFactory}
+     */
+    public NioListener(String serverAddress, int port,
+            boolean implicitSsl,
+            SslConfiguration sslConfiguration,
+            DataConnectionConfiguration dataConnectionConfig,
+            int idleTimeout, IpFilter ipFilter, SelectorProvider selectorProvider, backlog) {
+        super(serverAddress, port, implicitSsl, sslConfiguration, dataConnectionConfig,
+                idleTimeout, ipFilter, selectorProvider, backlog);
+    }
     /**
      * @see Listener#start(FtpServerContext)
      */

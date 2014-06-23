@@ -60,6 +60,8 @@ public abstract class AbstractListener implements Listener {
     private DataConnectionConfiguration dataConnectionConfig;
 
     private SelectorProvider selectorProvider = null;
+    
+    private int backlog = 500;
 
     /**
      * @deprecated Use the constructor with IpFilter instead. 
@@ -105,7 +107,24 @@ public abstract class AbstractListener implements Listener {
         this.ipFilter = ipFilter;
         this.selectorProvider = selectorProvider;
     }
-
+    
+    /**
+     * Constructor for internal use, do not use directly. Instead use {@link ListenerFactory}
+     */
+    public AbstractListener(String serverAddress, int port, boolean implicitSsl,
+            SslConfiguration sslConfiguration, DataConnectionConfiguration dataConnectionConfig,
+            int idleTimeout, IpFilter ipFilter, SelectorProvider selectorProvider, int backlog) {
+        this.serverAddress = serverAddress;
+        this.port = port;
+        this.implicitSsl = implicitSsl;
+        this.dataConnectionConfig = dataConnectionConfig;
+        this.ssl = sslConfiguration;
+        this.idleTimeout = idleTimeout;
+        this.ipFilter = ipFilter;
+        this.selectorProvider = selectorProvider;
+        this.backlog = backlog;
+    }
+    
     /**
      * Creates an IpFilter that blacklists the given IP addresses and/or Subnets. 
      * @param blockedAddresses the addresses to block
@@ -209,4 +228,12 @@ public abstract class AbstractListener implements Listener {
         return selectorProvider;
     }
 
+    /**
+     * Retrieves the custom accept backlog value
+     * @return
+     */
+    public int getBacklog()
+    {
+        return backlog;
+    }
 }

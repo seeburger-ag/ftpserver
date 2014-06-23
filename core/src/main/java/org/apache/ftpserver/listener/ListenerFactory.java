@@ -63,6 +63,8 @@ public class ListenerFactory {
      */
     private IpFilter ipFilter = null;
 
+    private int backlog = 500;
+
     /**
      * Default constructor
      */
@@ -109,7 +111,7 @@ public class ListenerFactory {
     	}
     	else {
 	        return new NioListener(serverAddress, port, implicitSsl, ssl,
-	        	dataConnectionConfig, idleTimeout, ipFilter, selectorProvider);
+	        	dataConnectionConfig, idleTimeout, ipFilter, selectorProvider, backlog);
     	}
     }
 
@@ -320,5 +322,8 @@ public class ListenerFactory {
         this.selectorProvider = selectorProvider;
     }
 
-
+    public void setBacklog(int backlog)
+    {
+        this.backlog = backlog;
+    }
 }
