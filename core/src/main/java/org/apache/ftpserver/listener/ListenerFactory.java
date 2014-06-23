@@ -322,8 +322,21 @@ public class ListenerFactory {
         this.selectorProvider = selectorProvider;
     }
 
+    /**
+     * Sets a custom accept backlog value
+     * @param backlog
+     */
     public void setBacklog(int backlog)
     {
         this.backlog = backlog;
+    }
+    
+    /**
+     * Returns the current set accept backlog
+     * @return backlog
+     */
+    public int getBacklog()
+    {
+        return backlog;
     }
 }

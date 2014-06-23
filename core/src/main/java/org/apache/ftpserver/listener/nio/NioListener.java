@@ -123,7 +123,7 @@ public class NioListener extends AbstractListener {
             boolean implicitSsl,
             SslConfiguration sslConfiguration,
             DataConnectionConfiguration dataConnectionConfig,
-            int idleTimeout, IpFilter ipFilter, SelectorProvider selectorProvider, backlog) {
+            int idleTimeout, IpFilter ipFilter, SelectorProvider selectorProvider, int backlog) {
         super(serverAddress, port, implicitSsl, sslConfiguration, dataConnectionConfig,
                 idleTimeout, ipFilter, selectorProvider, backlog);
     }
@@ -154,6 +154,7 @@ public class NioListener extends AbstractListener {
             acceptor.getSessionConfig().setReadBufferSize(2048);
             acceptor.getSessionConfig().setIdleTime(IdleStatus.BOTH_IDLE,
                     getIdleTimeout());
+            acceptor.setBacklog(getBacklog());
             // Decrease the default receiver buffer size
             ((SocketSessionConfig) acceptor.getSessionConfig())
                     .setReceiveBufferSize(512);
