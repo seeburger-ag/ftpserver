@@ -274,8 +274,24 @@ public class IODataConnectionFactory implements ServerDataConnectionFactory {
         dataSoc = null;
         DataConnectionConfiguration dataConfig = session.getListener()
                 .getDataConnectionConfiguration();
+        int timeout = dataConfig.getIdleTime() * 1000;
         try {
             if (!passive) {
+                InetAddress localAddr = resolveAddress(dataConfig.getActiveLocalAddress());
+
+                // if no local address has been configured, make sure we use the same as the client connects from
+                if (localAddr == null) {
+                    localAddr = ((InetSocketAddress)session.getLocalAddress()).getAddress();
+                }
+
+                int localPort = dataConfig.getActiveLocalPort();
+
+                SocketAddress localSocketAddress = new InetSocketAddress(localAddr, localPort);
+                LOG.debug("Binding active data connection to {}", localSocketAddress);
+
+                SocketAddress remoteSocketAddress = new InetSocketAddress(address, port);
+                LOG.debug("Opening active data connection to {}", remoteSocketAddress);
+
                 if (secure) {
                     LOG.debug("Opening secure active data connection");
                     SslConfiguration ssl = getSslConfiguration();
@@ -288,42 +304,37 @@ public class IODataConnectionFactory implements ServerDataConnectionFactory {
                     SSLContext ctx = ssl.getSSLContext();
                     SSLSocketFactory socFactory = ctx.getSocketFactory();
 
-                    // create socket
-                    SSLSocket ssoc = (SSLSocket) socFactory.createSocket();
+                    // SEEBURGER: do not use createSocket without parameters due to an issue in SecureEdge
+                    dataSoc = (SSLSocket)socFactory.createSocket(address, port, localAddr, localPort);
+                    dataSoc.setReuseAddress(true);
+                    SSLSocket ssoc = (SSLSocket)dataSoc;
                     ssoc.setUseClientMode(false);
+
+                    // SEEBURGER: this was missing in the original implementation in active mode
+                    if (ssl.getClientAuth() == ClientAuth.NEED) {
+                        ssoc.setNeedClientAuth(true);
+                    } else if (ssl.getClientAuth() == ClientAuth.WANT) {
+                        ssoc.setWantClientAuth(true);
+                    }
 
                     // initialize socket
                     if (ssl.getEnabledCipherSuites() != null) {
                         ssoc.setEnabledCipherSuites(ssl.getEnabledCipherSuites());
                     }
-                    dataSoc = ssoc;
                 } else {
-                    LOG.debug("Opening active data connection");
-                    if(dataConfig.getSocketFactory()!=null)
-                        dataSoc = dataConfig.getSocketFactory().createSocket(address,port);
-                    else
-                    dataSoc = new Socket();
-                }
+                    if (dataConfig.getSocketFactory() != null) {
+                        // SEEBURGER: do not use createSocket without parameters due to an issue in SecureEdge
+                        dataSoc = dataConfig.getSocketFactory().createSocket(address, port, localAddr, localPort);
+                        dataSoc.setReuseAddress(true);
+                    } else {
+                        dataSoc = new Socket();
+                        dataSoc.setReuseAddress(true);
 
-                dataSoc.setReuseAddress(true);
+                        dataSoc.bind(localSocketAddress);
 
-                InetAddress localAddr = resolveAddress(dataConfig
-                        .getActiveLocalAddress());
-
-                // if no local address has been configured, make sure we use the same as the client connects from
-                if(localAddr == null) {
-                    localAddr = ((InetSocketAddress)session.getLocalAddress()).getAddress();
-                }
-
-                SocketAddress localSocketAddress = new InetSocketAddress(localAddr, dataConfig.getActiveLocalPort());
-
-                LOG.debug("Binding active data connection to {}", localSocketAddress);
-                if(dataConfig.getSocketFactory()==null)
-                {
-                dataSoc.bind(localSocketAddress);
-
-                // SEEBURGER: set socket connect timeout
-                dataSoc.connect(new InetSocketAddress(address, port), dataConfig.getIdleTime() * 1000);
+                        // SEEBURGER: set socket connect timeout
+                        dataSoc.connect(new InetSocketAddress(address, port), timeout);
+                    }
                 }
             } else {
 
@@ -370,10 +381,7 @@ public class IODataConnectionFactory implements ServerDataConnectionFactory {
 
                     dataSoc = servSoc.accept();
                 }
-                DataConnectionConfiguration dataCfg = session.getListener()
-                    .getDataConnectionConfiguration();
 
-                dataSoc.setSoTimeout(dataCfg.getIdleTime() * 1000);
                 LOG.debug("Passive data connection opened");
             }
         } catch (Exception ex) {
@@ -381,7 +389,7 @@ public class IODataConnectionFactory implements ServerDataConnectionFactory {
             LOG.warn("FtpDataConnection.getDataSocket()", ex);
             throw ex;
         }
-        dataSoc.setSoTimeout(dataConfig.getIdleTime() * 1000);
+        dataSoc.setSoTimeout(timeout);
 
         // Make sure we initiate the SSL handshake, or we'll
         // get an error if we turn out not to send any data
