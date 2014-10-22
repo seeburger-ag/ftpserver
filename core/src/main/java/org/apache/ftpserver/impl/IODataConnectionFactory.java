@@ -154,7 +154,7 @@ public class IODataConnectionFactory implements ServerDataConnectionFactory {
     }
 
     /**
-     * Initiate a data connection in passive mode (server listening). 
+     * Initiate a data connection in passive mode (server listening).
      */
     public synchronized InetSocketAddress initPassiveDataConnection()
             throws DataConnectionException {
@@ -304,9 +304,18 @@ public class IODataConnectionFactory implements ServerDataConnectionFactory {
                     SSLContext ctx = ssl.getSSLContext();
                     SSLSocketFactory socFactory = ctx.getSocketFactory();
 
-                    // SEEBURGER: do not use createSocket without parameters due to an issue in SecureEdge
-                    dataSoc = (SSLSocket)socFactory.createSocket(address, port, localAddr, localPort);
-                    dataSoc.setReuseAddress(true);
+                    try {
+                        dataSoc = (SSLSocket)socFactory.createSocket();
+                        dataSoc.setReuseAddress(true);
+                        dataSoc.bind(localSocketAddress);
+                        dataSoc.connect(new InetSocketAddress(address, port), timeout);
+
+                    } catch (Exception ex) {
+                        // SEEBURGER: do not use createSocket without parameters due to an issue in SecureEdge
+                        dataSoc = (SSLSocket)socFactory.createSocket(address, port, localAddr, localPort);
+                        dataSoc.setReuseAddress(true);
+                    }
+
                     SSLSocket ssoc = (SSLSocket)dataSoc;
                     ssoc.setUseClientMode(false);
 
@@ -323,9 +332,18 @@ public class IODataConnectionFactory implements ServerDataConnectionFactory {
                     }
                 } else {
                     if (dataConfig.getSocketFactory() != null) {
-                        // SEEBURGER: do not use createSocket without parameters due to an issue in SecureEdge
-                        dataSoc = dataConfig.getSocketFactory().createSocket(address, port, localAddr, localPort);
-                        dataSoc.setReuseAddress(true);
+                        try {
+                            dataSoc = dataConfig.getSocketFactory().createSocket();
+                            dataSoc.setReuseAddress(true);
+                            dataSoc.bind(localSocketAddress);
+                            // SEEBURGER: set socket connect timeout
+                            dataSoc.connect(new InetSocketAddress(address, port), timeout);
+
+                        } catch (Exception ex) {
+                            // SEEBURGER: do not use createSocket without parameters due to an issue in SecureEdge
+                            dataSoc = dataConfig.getSocketFactory().createSocket(address, port, localAddr, localPort);
+                            dataSoc.setReuseAddress(true);
+                        }
                     } else {
                         dataSoc = new Socket();
                         dataSoc.setReuseAddress(true);
