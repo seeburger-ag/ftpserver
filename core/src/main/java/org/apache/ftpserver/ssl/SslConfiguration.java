@@ -59,6 +59,15 @@ public interface SslConfiguration {
     String[] getEnabledCipherSuites();
 
     /**
+     * Returns the protocols that should be enabled for this connection.
+     * Must return null if the default (as decided by the JVM) protocols
+     * should be used.
+     *
+     * @return An array of protocols, or null.
+     */
+    String[] getEnabledProtocols();
+
+    /**
      * Return the required client authentication setting
      * 
      * @return {@link ClientAuth#NEED} if client authentication is required,

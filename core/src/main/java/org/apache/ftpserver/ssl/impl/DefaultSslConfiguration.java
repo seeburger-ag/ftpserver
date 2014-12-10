@@ -129,4 +129,14 @@ public class DefaultSslConfiguration implements SslConfiguration {
             return null;
         }
     }
+
+    /**
+     *
+     * @see org.apache.ftpserver.ssl.SslConfiguration#getEnabledProtocols()
+     */
+    public String[] getEnabledProtocols()
+    {
+        //use vm default
+        return null;
+    }
 }

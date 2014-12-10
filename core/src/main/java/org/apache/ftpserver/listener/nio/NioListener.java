@@ -194,7 +194,11 @@ public class NioListener extends AbstractListener {
                 if (ssl.getEnabledCipherSuites() != null) {
                     sslFilter.setEnabledCipherSuites(ssl.getEnabledCipherSuites());
                 }
-    
+
+                if (ssl.getEnabledProtocols() != null) {
+                    sslFilter.setEnabledProtocols(ssl.getEnabledProtocols());
+                }
+
                 acceptor.getFilterChain().addFirst("sslFilter", sslFilter);
             }
     

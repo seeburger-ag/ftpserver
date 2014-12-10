@@ -330,6 +330,11 @@ public class IODataConnectionFactory implements ServerDataConnectionFactory {
                     if (ssl.getEnabledCipherSuites() != null) {
                         ssoc.setEnabledCipherSuites(ssl.getEnabledCipherSuites());
                     }
+
+                    if (ssl.getEnabledProtocols() != null) {
+                        ssoc.setEnabledProtocols(ssl.getEnabledProtocols());
+                    }
+
                 } else {
                     if (dataConfig.getSocketFactory() != null) {
                         try {

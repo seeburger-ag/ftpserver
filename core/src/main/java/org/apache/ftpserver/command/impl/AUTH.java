@@ -137,12 +137,12 @@ public class AUTH extends AbstractCommand {
                 sslFilter.setWantClientAuth(true);
             }
 
-            // note that we do not care about the protocol, we allow both types
-            // and leave it to the SSL handshake to determine the protocol to
-            // use. Thus the type argument is ignored.
-
             if (ssl.getEnabledCipherSuites() != null) {
                 sslFilter.setEnabledCipherSuites(ssl.getEnabledCipherSuites());
+            }
+
+            if (ssl.getEnabledProtocols() != null) {
+                sslFilter.setEnabledProtocols(ssl.getEnabledProtocols());
             }
 
             session.getFilterChain().addFirst(SSL_SESSION_FILTER_NAME,
