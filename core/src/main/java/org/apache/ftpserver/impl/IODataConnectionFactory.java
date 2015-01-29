@@ -405,6 +405,15 @@ public class IODataConnectionFactory implements ServerDataConnectionFactory {
                     dataSoc = servSoc.accept();
                 }
 
+                InetAddress sessionRemoteAddress = ((InetSocketAddress)session.getRemoteAddress()).getAddress();
+                InetAddress clientSocketAddress = dataSoc.getInetAddress();
+                if (!clientSocketAddress.equals(sessionRemoteAddress))
+                {
+                    LOG.warn("Attempt to login from unexpected IP address: " + clientSocketAddress + ", closing data connection ");
+                    closeDataConnection();
+                    return null;
+                }
+
                 LOG.debug("Passive data connection opened");
             }
         } catch (Exception ex) {
