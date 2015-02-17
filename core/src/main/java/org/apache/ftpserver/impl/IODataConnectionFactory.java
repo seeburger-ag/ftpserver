@@ -111,7 +111,7 @@ public class IODataConnectionFactory implements ServerDataConnectionFactory {
             if (session != null) {
                 DataConnectionConfiguration dcc = session.getListener()
                         .getDataConnectionConfiguration();
-                if (dcc != null) {
+                if (dcc != null && dcc.getServerSocketFactory() == null) {
                     dcc.releasePassivePort(port);
                 }
             }
@@ -162,19 +162,19 @@ public class IODataConnectionFactory implements ServerDataConnectionFactory {
         // close old sockets if any
         closeDataConnection();
 
-        // get the passive port
-        int passivePort = session.getListener()
-                .getDataConnectionConfiguration().requestPassivePort();
-        if (passivePort == -1) {
-            servSoc = null;
-            throw new DataConnectionException(
-                    "Cannot find an available passive port.");
-        }
-
         // open passive server socket and get parameters
         try {
-            DataConnectionConfiguration dataCfg = session.getListener()
-                    .getDataConnectionConfiguration();
+            DataConnectionConfiguration dataCfg = session.getListener().getDataConnectionConfiguration();
+
+            int passivePort = 0;
+            if (dataCfg.getServerSocketFactory() == null) {
+                // get the passive port
+                passivePort = session.getListener().getDataConnectionConfiguration().requestPassivePort();
+                if (passivePort == -1) {
+                    servSoc = null;
+                    throw new DataConnectionException("Cannot find an available passive port.");
+                }
+            }
 
             String passiveAddress = dataCfg.getPassiveAddress();
 
