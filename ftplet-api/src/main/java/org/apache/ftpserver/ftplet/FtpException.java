@@ -54,7 +54,7 @@ public class FtpException extends Exception {
      *            the original cause
      */
     public FtpException(Throwable th) {
-        super(th.getMessage());
+        super(th.getMessage(), th);
     }
 
     /**
@@ -66,7 +66,7 @@ public class FtpException extends Exception {
      *            The original cause
      */
     public FtpException(String msg, Throwable th) {
-        super(msg);
+        super(msg, th);
     }
 
     /**
