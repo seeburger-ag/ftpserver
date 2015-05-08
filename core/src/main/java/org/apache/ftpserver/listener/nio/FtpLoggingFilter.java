@@ -91,7 +91,7 @@ public class FtpLoggingFilter extends LoggingFilter {
             logMessage = request;
         }
 
-        logger.info("RECEIVED: {}", logMessage);
+        logger.debug("RECEIVED: {}", logMessage);
         nextFilter.messageReceived(session, message);
     }
 
