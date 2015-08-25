@@ -62,6 +62,8 @@ public class IODataConnectionFactory implements ServerDataConnectionFactory {
 
     int port = 0;
 
+    int passivePort = 0;
+
     long requestTime = 0L;
 
     boolean passive = false;
@@ -112,7 +114,9 @@ public class IODataConnectionFactory implements ServerDataConnectionFactory {
                 DataConnectionConfiguration dcc = session.getListener()
                         .getDataConnectionConfiguration();
                 if (dcc != null && dcc.getServerSocketFactory() == null) {
-                    dcc.releasePassivePort(port);
+                    if (passivePort > 0) {
+                        dcc.releasePassivePort(port);
+                    }
                 }
             }
 
@@ -166,7 +170,7 @@ public class IODataConnectionFactory implements ServerDataConnectionFactory {
         try {
             DataConnectionConfiguration dataCfg = session.getListener().getDataConnectionConfiguration();
 
-            int passivePort = 0;
+            passivePort = 0;
             if (dataCfg.getServerSocketFactory() == null) {
                 // get the passive port
                 passivePort = session.getListener().getDataConnectionConfiguration().requestPassivePort();
