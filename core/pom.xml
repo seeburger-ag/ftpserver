@@ -71,11 +71,13 @@
 							org.apache.ftpserver.ftpletcontainer;version=${project.version},
 							org.apache.ftpserver.ipfilter;version=${project.version},
 							org.apache.ftpserver.listener;version=${project.version},
+                            org.apache.ftpserver.util;version=${project.version},
 							org.apache.ftpserver.main;version=${project.version},
 							org.apache.ftpserver.message;version=${project.version},
 							org.apache.ftpserver.ssl;version=${project.version},
 							org.apache.ftpserver.usermanager;version=${project.version},
                             org.apache.ftpserver.command.impl;version=${project.version},
+                            org.apache.ftpserver.command.impl.listing;version=${project.version},
                             org.apache.ftpserver.impl;version=${project.version},
                             org.apache.ftpserver.usermanager.impl;version=${project.version}
 						</Export-Package>
