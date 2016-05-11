@@ -210,10 +210,23 @@ public class DefaultFtpHandler implements FtpHandler {
                         command.execute(session, context, request);
                     }
                 } else {
-                    session.write(LocalizedFtpReply.translate(session, request,
-                            context,
-                            FtpReply.REPLY_502_COMMAND_NOT_IMPLEMENTED,
-                            "not.implemented", null));
+                    if (session.getUser() == null) {
+                        LOG.info("Received an unknown command \"" + commandName + "\" from " + session.getRemoteAddress());
+                    } else {
+                        LOG.info("Received an unknown command \"" + commandName + "\" from " + session.getRemoteAddress() + " user \"" + session.getUser().getName() + "\"");
+                    }
+
+                    if (commandName.equalsIgnoreCase("CCC")) {
+                        session.write(LocalizedFtpReply.translate(session, request,
+                                context,
+                                FtpReply.REPLY_500_SYNTAX_ERROR_COMMAND_UNRECOGNIZED,
+                                "not.supported", null));
+                    } else {
+                        session.write(LocalizedFtpReply.translate(session, request,
+                                context,
+                                FtpReply.REPLY_502_COMMAND_NOT_IMPLEMENTED,
+                                "not.implemented", null));
+                    }
                 }
 
                 try {
