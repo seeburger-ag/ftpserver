@@ -409,13 +409,18 @@ public class IODataConnectionFactory implements ServerDataConnectionFactory {
                     dataSoc = servSoc.accept();
                 }
 
-                InetAddress sessionRemoteAddress = ((InetSocketAddress)session.getRemoteAddress()).getAddress();
-                InetAddress clientSocketAddress = dataSoc.getInetAddress();
-                if (!clientSocketAddress.equals(sessionRemoteAddress))
-                {
-                    LOG.warn("Attempt to login from unexpected IP address: " + clientSocketAddress + ", closing data connection ");
-                    closeDataConnection();
-                    return null;
+                if (dataConfig.isPassiveIpCheck()) {
+                    // Let's make sure we got the connection from the same client that we are expecting
+                    InetAddress remoteAddress = ((InetSocketAddress)session.getRemoteAddress()).getAddress();
+                    InetAddress dataSocketAddress = dataSoc.getInetAddress();
+                    if (!dataSocketAddress.equals(remoteAddress)) {
+                        String username = session.getUser() == null ? "unknonwn" : session.getUser().getName();
+                        String message = "Passive IP check for user <" + username + "> failed. Closing data connection from <" + dataSocketAddress
+                                       + "> as it does not match the expected address <" + remoteAddress + ">. Data connection listening on address <"
+                                       + dataSoc.getLocalAddress() + "> with port <" + dataSoc.getLocalPort() + ">";
+                        LOG.warn(message);
+                        throw new FtpException(message);
+                    }
                 }
 
                 LOG.debug("Passive data connection opened");

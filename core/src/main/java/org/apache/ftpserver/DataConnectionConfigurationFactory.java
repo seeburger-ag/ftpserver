@@ -35,12 +35,12 @@ import org.slf4j.LoggerFactory;
 /**
  * Data connection factory
  *
- * @author <a href="http://mina.apache.org">Apache MINA Project</a> 
+ * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class DataConnectionConfigurationFactory {
 
     private Logger log = LoggerFactory.getLogger(DataConnectionConfigurationFactory.class);
-    
+
     // maximum idle time in seconds
     private int idleTime = 300;
     private SslConfiguration ssl;
@@ -49,17 +49,18 @@ public class DataConnectionConfigurationFactory {
     private String activeLocalAddress;
     private int activeLocalPort = 0;
     private boolean activeIpCheck = false;
-    
+
     private String passiveAddress;
     private String passiveExternalAddress;
     private PassivePorts passivePorts = new PassivePorts(Collections.<Integer>emptySet(), true);
+    private boolean passiveIpCheck = false;
     private boolean implicitSsl;
 
     private SocketFactory socketFactory = null;
     private ServerSocketFactory serverSocketFactory = null;
 
     /**
-     * Create a {@link DataConnectionConfiguration} instance based on the 
+     * Create a {@link DataConnectionConfiguration} instance based on the
      * configuration on this factory
      * @return The {@link DataConnectionConfiguration} instance
      */
@@ -69,11 +70,11 @@ public class DataConnectionConfigurationFactory {
                 ssl, activeEnabled, activeIpCheck,
                 activeLocalAddress, activeLocalPort,
                 passiveAddress, passivePorts,
-                passiveExternalAddress, implicitSsl,socketFactory,serverSocketFactory);
+                passiveExternalAddress, passiveIpCheck, implicitSsl,socketFactory,serverSocketFactory);
     }
     /*
      * (Non-Javadoc)
-     *  Checks if the configured addresses to be used in further data connections 
+     *  Checks if the configured addresses to be used in further data connections
      *  are valid.
      */
     private void checkValidAddresses(){
@@ -84,7 +85,7 @@ public class DataConnectionConfigurationFactory {
     		throw new FtpServerConfigurationException("Unknown host", ex);
     	}
     }
-    
+
     /**
      * Get the maximum idle time in seconds.
      * @return The maximum idle time
@@ -97,7 +98,7 @@ public class DataConnectionConfigurationFactory {
      * Set the maximum idle time in seconds.
      * @param idleTime The maximum idle time
      */
-    
+
     public void setIdleTime(int idleTime) {
         this.idleTime = idleTime;
     }
@@ -175,7 +176,7 @@ public class DataConnectionConfigurationFactory {
     }
 
     /**
-     * Set the passive server address. 
+     * Set the passive server address.
      * @param passiveAddress The address used for passive connections
      */
     public void setPassiveAddress(String passiveAddress) {
@@ -185,7 +186,7 @@ public class DataConnectionConfigurationFactory {
     /**
      * Get the passive address that will be returned to clients on the PASV
      * command.
-     * 
+     *
      * @return The passive address to be returned to clients, null if not
      *         configured.
      */
@@ -196,13 +197,39 @@ public class DataConnectionConfigurationFactory {
     /**
      * Set the passive address that will be returned to clients on the PASV
      * command.
-     * 
+     *
      * @param passiveExternalAddress The passive address to be returned to clients
      */
     public void setPassiveExternalAddress(String passiveExternalAddress) {
         this.passiveExternalAddress = passiveExternalAddress;
     }
-    
+
+    /**
+     * Tells whether or not IP address check is performed when accepting a
+     * passive data connection.
+     *
+     * @return <code>true</code>, if the IP address checking is enabled;
+     *         <code>false</code>, otherwise. A value of <code>true</code> means
+     *         that site to site transfers are disabled. In other words, a
+     *         passive data connection MUST be made from the same IP address
+     *         that issued the PASV command.
+     */
+    public boolean isPassiveIpCheck() {
+        return passiveIpCheck;
+    }
+
+    /**
+     * Sets whether or not IP check is performed before accepting a passive data
+     * connection.
+     *
+     * @param passiveIpCheck
+     *            whether or not IP check is performed before accepting a
+     *            passive data connection.
+     */
+    public void setPassiveIpCheck(boolean passiveIpCheck) {
+        this.passiveIpCheck = passiveIpCheck;
+    }
+
     /**
      * Get passive data port. Data port number zero (0) means that any available
      * port will be used.
@@ -233,7 +260,7 @@ public class DataConnectionConfigurationFactory {
 
     /**
      * Retrieve the passive ports configured for this data connection
-     * 
+     *
      * @return The String of passive ports
      */
     public String getPassivePorts() {
@@ -250,16 +277,16 @@ public class DataConnectionConfigurationFactory {
      * <li>2300- : use all ports larger than 2300</li>
      * <li>2300, 2305, 2400- : use 2300 or 2305 or any port larger than 2400</li>
      * </ul>
-     * 
+     *
      * Defaults to using any available port
-     * 
+     *
      * @param passivePorts The passive ports string
      */
     public void setPassivePorts(String passivePorts) {
         this.passivePorts = new PassivePorts(passivePorts, true);
     }
 
-    
+
     /**
      * Release data port
      * @param port The port to release

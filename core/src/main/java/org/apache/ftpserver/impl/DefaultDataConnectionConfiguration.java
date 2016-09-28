@@ -28,7 +28,7 @@ import org.apache.ftpserver.ssl.SslConfiguration;
 
 /**
  * <strong>Internal class, do not use directly.</strong>
- * 
+ *
  * Data connection configuration.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
@@ -44,11 +44,12 @@ public class DefaultDataConnectionConfiguration implements
     private String activeLocalAddress;
     private int activeLocalPort;
     private boolean activeIpCheck;
-    
+
     private String passiveAddress;
     private String passiveExternalAddress;
     private PassivePorts passivePorts;
-    
+    private boolean passiveIpCheck;
+
     private final boolean implicitSsl;
 
     private SocketFactory socketFactory = null;
@@ -61,7 +62,7 @@ public class DefaultDataConnectionConfiguration implements
             SslConfiguration ssl, boolean activeEnabled, boolean activeIpCheck,
             String activeLocalAddress, int activeLocalPort,
             String passiveAddress, PassivePorts passivePorts,
-            String passiveExternalAddress, boolean implicitSsl,
+            String passiveExternalAddress, boolean passiveIpCheck, boolean implicitSsl,
             SocketFactory socketFactory, ServerSocketFactory serverSocketFactory) {
         this.idleTime = idleTime;
         this.ssl = ssl;
@@ -72,6 +73,7 @@ public class DefaultDataConnectionConfiguration implements
         this.passiveAddress = passiveAddress;
         this.passivePorts = passivePorts;
         this.passiveExternalAddress = passiveExternalAddress;
+        this.passiveIpCheck = passiveIpCheck;
         this.implicitSsl = implicitSsl;
         this.socketFactory = socketFactory;
         this.serverSocketFactory = serverSocketFactory;
@@ -122,9 +124,13 @@ public class DefaultDataConnectionConfiguration implements
     /**
      * Get external passive host.
      */
-    public String getPassiveExernalAddress()  {
-    	return passiveExternalAddress;
-    	}
+    public String getPassiveExernalAddress() {
+        return passiveExternalAddress;
+    }
+
+    public boolean isPassiveIpCheck() {
+        return passiveIpCheck;
+    }
 
     /**
      * Get passive data port. Data port number zero (0) means that any available
@@ -136,7 +142,7 @@ public class DefaultDataConnectionConfiguration implements
 
     /**
      * Retrive the passive ports configured for this data connection
-     * 
+     *
      * @return The String of passive ports
      */
     public String getPassivePorts() {
