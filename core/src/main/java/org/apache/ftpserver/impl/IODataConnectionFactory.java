@@ -409,17 +409,19 @@ public class IODataConnectionFactory implements ServerDataConnectionFactory {
                     dataSoc = servSoc.accept();
                 }
 
-                if (dataConfig.isPassiveIpCheck()) {
-                    // Let's make sure we got the connection from the same client that we are expecting
-                    InetAddress remoteAddress = ((InetSocketAddress)session.getRemoteAddress()).getAddress();
-                    InetAddress dataSocketAddress = dataSoc.getInetAddress();
-                    if (!dataSocketAddress.equals(remoteAddress)) {
+                // Let's make sure we got the connection from the same client that we are expecting
+                InetAddress remoteAddress = ((InetSocketAddress)session.getRemoteAddress()).getAddress();
+                InetAddress dataSocketAddress = dataSoc.getInetAddress();
+                if (!dataSocketAddress.equals(remoteAddress)) {
+                    if (dataConfig.isPassiveIpCheck()) {
                         String username = session.getUser() == null ? "unknonwn" : session.getUser().getName();
-                        String message = "Passive IP check for user <" + username + "> failed. Closing data connection from <" + dataSocketAddress
-                                       + "> as it does not match the expected address <" + remoteAddress + ">. Data connection listening on address <"
-                                       + dataSoc.getLocalAddress() + "> with port <" + dataSoc.getLocalPort() + ">";
+                        String message = "Passive IP check for user <" + username + "> failed. Closing data connection from <" + dataSocketAddress + "> as it does not match the expected address <" + remoteAddress + ">. Data connection listening on address <" + dataSoc.getLocalAddress() + "> with port <" + dataSoc.getLocalPort() + ">";
                         LOG.warn(message);
                         throw new FtpException(message);
+                    } else {
+                        String username = session.getUser() == null ? "unknonwn" : session.getUser().getName();
+                        String message = "Passive IP check for user <" + username + "> deactivated. Data connection from <" + dataSocketAddress + "> does not match the expected address <" + remoteAddress + ">. Data connection listening on address <" + dataSoc.getLocalAddress() + "> with port <" + dataSoc.getLocalPort() + ">";
+                        LOG.warn(message);
                     }
                 }
 
