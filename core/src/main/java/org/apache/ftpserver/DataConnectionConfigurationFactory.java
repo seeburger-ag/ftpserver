@@ -56,6 +56,8 @@ public class DataConnectionConfigurationFactory {
     private boolean passiveIpCheck = false;
     private boolean implicitSsl;
 
+    private boolean useStrictAsciiConversion = false;
+
     private SocketFactory socketFactory = null;
     private ServerSocketFactory serverSocketFactory = null;
 
@@ -70,7 +72,7 @@ public class DataConnectionConfigurationFactory {
                 ssl, activeEnabled, activeIpCheck,
                 activeLocalAddress, activeLocalPort,
                 passiveAddress, passivePorts,
-                passiveExternalAddress, passiveIpCheck, implicitSsl,socketFactory,serverSocketFactory);
+                passiveExternalAddress, passiveIpCheck, implicitSsl, useStrictAsciiConversion, socketFactory,serverSocketFactory);
     }
     /*
      * (Non-Javadoc)
@@ -364,4 +366,13 @@ public class DataConnectionConfigurationFactory {
         this.serverSocketFactory = serverSocketFactory;
     }
 
+    public boolean isUseStrictAsciiConversion()
+    {
+        return useStrictAsciiConversion;
+    }
+
+    public void setUseStrictAsciiConversion(boolean useStrictAsciiConversion)
+    {
+        this.useStrictAsciiConversion = useStrictAsciiConversion;
+    }
 }
