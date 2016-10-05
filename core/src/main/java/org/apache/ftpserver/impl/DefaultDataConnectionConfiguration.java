@@ -49,7 +49,6 @@ public class DefaultDataConnectionConfiguration implements
     private String passiveExternalAddress;
     private PassivePorts passivePorts;
     private boolean passiveIpCheck;
-    private boolean useStrictAsciiConversion;
 
     private final boolean implicitSsl;
 
@@ -63,7 +62,7 @@ public class DefaultDataConnectionConfiguration implements
             SslConfiguration ssl, boolean activeEnabled, boolean activeIpCheck,
             String activeLocalAddress, int activeLocalPort,
             String passiveAddress, PassivePorts passivePorts,
-            String passiveExternalAddress, boolean passiveIpCheck, boolean implicitSsl, boolean useStrictAsciiConversion,
+            String passiveExternalAddress, boolean passiveIpCheck, boolean implicitSsl,
             SocketFactory socketFactory, ServerSocketFactory serverSocketFactory) {
         this.idleTime = idleTime;
         this.ssl = ssl;
@@ -78,7 +77,6 @@ public class DefaultDataConnectionConfiguration implements
         this.implicitSsl = implicitSsl;
         this.socketFactory = socketFactory;
         this.serverSocketFactory = serverSocketFactory;
-        this.useStrictAsciiConversion = useStrictAsciiConversion;
     }
 
     /**
@@ -186,10 +184,5 @@ public class DefaultDataConnectionConfiguration implements
     public ServerSocketFactory getServerSocketFactory()
     {
         return serverSocketFactory;
-    }
-
-    public boolean isStrictAsciiConversion()
-    {
-        return useStrictAsciiConversion;
     }
 }

@@ -256,70 +256,34 @@ public class IODataConnection implements DataConnection {
                 }
 
                 // write data
+                // if ascii, replace \n by \r\n
                 if (isAscii) {
-                    boolean useStrictAsciiConversion = this.session.getListener().getDataConnectionConfiguration().isStrictAsciiConversion();
-                    if (useStrictAsciiConversion) {
-                        // implements a more robust RFC based conversion
-                        if (EOL.length == 1) {
-                            for (int i = 0; i < count; ++i) {
-                                byte b = buff[i];
-                                if(isWrite) {
-                                    // RETR - transform EOL to CRLF
-                                    if (b == EOL[0]) {
-                                        bos.write('\r');
-                                        bos.write('\n');
-                                    } else {
-                                        bos.write(b);
-                                    }
-                                } else {
-                                    // STOR - transform CRLF to EOL
-                                    if (b == 'r' && i < count - 1) {
-                                        b = buff[++i];
-                                        if (b == 'n') {
-                                            bos.write(EOL[0]);
-                                        } else {
-                                            // not CRLF, write both CR and the next byte
-                                            bos.write('r');
-                                            bos.write(b);
-                                        }
-                                    } else {
-                                        bos.write(b);
-                                    }
-                                }
+                    for (int i = 0; i < count; ++i) {
+                        byte b = buff[i];
+                        if(isWrite) {
+                            if (b == '\n' && lastByte != '\r') {
+                                bos.write('\r');
                             }
-                        } else {
-                            // if EOL == CRLF - no transformation needed
-                            bos.write(buff, 0, count);
-                        }
-                    } else {
-                        // original code (compatibility mode)
-                        for (int i = 0; i < count; ++i) {
-                            byte b = buff[i];
-                            if(isWrite) {
-                                if (b == '\n' && lastByte != '\r') {
-                                    bos.write('\r');
-                                }
 
-                                bos.write(b);
-                            } else {
-                                if(b == '\n') {
-                                    // for reads, we should always get \r\n
-                                    // so what we do here is to ignore \n bytes
-                                    // and on \r dump the system local line ending
-                                    // Some clients won't transform new lines into \r\n so we make sure we don't delete new lines
-                                    if (lastByte != '\r'){
-                                        bos.write(EOL);
-                                    }
-                                } else if(b == '\r') {
-                                    bos.write(EOL);
-                                } else {
-                                    // not a line ending, just output
-                                    bos.write(b);
+                            bos.write(b);
+                        } else {
+                            if(b == '\n') {
+                                // for reads, we should always get \r\n
+                                // so what we do here is to ignore \n bytes
+                                // and on \r dump the system local line ending
+                                // Some clients won't transform new lines into \r\n so we make sure we don't delete new lines
+								if (lastByte != '\r'){
+								    bos.write(EOL);
                                 }
+                            } else if(b == '\r') {
+                                bos.write(EOL);
+                            } else {
+                                // not a line ending, just output
+                                bos.write(b);
                             }
-                            // store this byte so that we can compare it for line endings
-                            lastByte = b;
                         }
+                        // store this byte so that we can compare it for line endings
+                        lastByte = b;
                     }
                 } else {
                     bos.write(buff, 0, count);

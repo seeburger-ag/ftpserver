@@ -141,7 +141,4 @@ public interface DataConnectionConfiguration {
     * @return ServerSocketFactory or null
     */
    ServerSocketFactory getServerSocketFactory();
-
-   boolean isStrictAsciiConversion();
-
 }
