@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <strong>Internal class, do not use directly.</strong>
- * 
+ *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a> *
  */
 public class DefaultFtpHandler implements FtpHandler {
@@ -60,7 +60,7 @@ public class DefaultFtpHandler implements FtpHandler {
 
     public void sessionCreated(final FtpIoSession session) throws Exception {
         session.setListener(listener);
-        
+
         ServerFtpStatistics stats = ((ServerFtpStatistics) context
                 .getFtpStatistics());
 
@@ -84,7 +84,7 @@ public class DefaultFtpHandler implements FtpHandler {
             session.close(false).awaitUninterruptibly(10000);
         } else {
             session.updateLastAccessTime();
-            
+
             session.write(LocalizedFtpReply.translate(session, null, context,
                     FtpReply.REPLY_220_SERVICE_READY, null, null));
         }
@@ -102,7 +102,7 @@ public class DefaultFtpHandler implements FtpHandler {
 
         // make sure we close the data connection if it happens to be open
         try {
-            ServerDataConnectionFactory dc = session.getDataConnection(); 
+            ServerDataConnectionFactory dc = session.getDataConnection();
             if(dc != null) {
                 dc.closeDataConnection();
             }
@@ -110,7 +110,7 @@ public class DefaultFtpHandler implements FtpHandler {
             // swallow the exception, we're closing down the session anyways
             LOG.warn("Data connection threw an exception on disconnect", e);
         }
-        
+
         FileSystemView fs = session.getFileSystemView();
         if(fs != null) {
             try  {
@@ -135,18 +135,18 @@ public class DefaultFtpHandler implements FtpHandler {
 
     public void exceptionCaught(final FtpIoSession session,
             final Throwable cause) throws Exception {
-        
+
         if(cause instanceof ProtocolDecoderException &&
                 cause.getCause() instanceof MalformedInputException) {
             // client probably sent something which is not UTF-8 and we failed to
             // decode it
-            
+
             LOG.warn(
                     "Client sent command that could not be decoded: {}",
                     ((ProtocolDecoderException)cause).getHexdump());
             session.write(new DefaultFtpReply(FtpReply.REPLY_501_SYNTAX_ERROR_IN_PARAMETERS_OR_ARGUMENTS, "Invalid character in command"));
         } else if (cause instanceof WriteToClosedSessionException) {
-            WriteToClosedSessionException writeToClosedSessionException = 
+            WriteToClosedSessionException writeToClosedSessionException =
                 (WriteToClosedSessionException) cause;
             LOG.warn(
                             "Client closed connection before all replies could be sent, last reply was {}",
@@ -173,9 +173,12 @@ public class DefaultFtpHandler implements FtpHandler {
 
     public void messageReceived(final FtpIoSession session,
             final FtpRequest request) throws Exception {
+
+        boolean isExceptionHandled = false;
+
         try {
             session.updateLastAccessTime();
-            
+
             String commandName = request.getCommand();
             CommandFactory commandFactory = context.getCommandFactory();
             Command command = commandFactory.getCommand(commandName);
@@ -207,7 +210,20 @@ public class DefaultFtpHandler implements FtpHandler {
 
                 if (command != null) {
                     synchronized (session) {
-                        command.execute(session, context, request);
+                        try {
+                            command.execute(session, context, request);
+                        } catch (Exception e) {
+                            // SEEBURGER: Bug#72615 We need to call afterCommand even if an unexpected exception occurred during execute
+                            try {
+                                session.write(LocalizedFtpReply.translate(session, request, context, FtpReply.REPLY_550_REQUESTED_ACTION_NOT_TAKEN, null, null));
+                                ftplets.afterCommand(session.getFtpletSession(), request, session.getLastReply());
+                            } catch (Exception ex) {
+                                LOG.debug("Ftplet container threw exception", e);
+                            }
+
+                            isExceptionHandled = true;
+                            throw e;
+                        }
                     }
                 } else {
                     if (session.getUser() == null) {
@@ -249,9 +265,11 @@ public class DefaultFtpHandler implements FtpHandler {
 
             // send error reply
             try {
-                session.write(LocalizedFtpReply.translate(session, request,
-                        context, FtpReply.REPLY_550_REQUESTED_ACTION_NOT_TAKEN,
-                        null, null));
+                if (!isExceptionHandled) {
+                    session.write(LocalizedFtpReply.translate(session, request,
+                            context, FtpReply.REPLY_550_REQUESTED_ACTION_NOT_TAKEN,
+                            null, null));
+                }
             } catch (Exception ex1) {
             }
 
