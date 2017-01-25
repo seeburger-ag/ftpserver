@@ -37,10 +37,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <strong>Internal class, do not use directly.</strong>
- * 
+ *
  * This server supports explicit SSL support.
  *
- * @author <a href="http://mina.apache.org">Apache MINA Project</a> 
+ * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class AUTH extends AbstractCommand {
 
@@ -130,7 +130,13 @@ public class AUTH extends AbstractCommand {
         if (ssl != null) {
             session.setAttribute(SslFilter.DISABLE_ENCRYPTION_ONCE);
 
-            SslFilter sslFilter = new SslFilter(ssl.getSSLContext());
+            SslFilter sslFilter = null;
+            if(ssl.getSslFilter()==null) {
+                sslFilter = new SslFilter(ssl.getSSLContext());
+            } else {
+                sslFilter = ssl.getSslFilter();
+            }
+
             if (ssl.getClientAuth() == ClientAuth.NEED) {
                 sslFilter.setNeedClientAuth(true);
             } else if (ssl.getClientAuth() == ClientAuth.WANT) {

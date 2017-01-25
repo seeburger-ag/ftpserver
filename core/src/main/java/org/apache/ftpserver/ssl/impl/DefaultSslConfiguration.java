@@ -31,6 +31,7 @@ import org.apache.ftpserver.ssl.ClientAuth;
 import org.apache.ftpserver.ssl.SslConfiguration;
 import org.apache.ftpserver.ssl.SslConfigurationFactory;
 import org.apache.ftpserver.util.ClassUtils;
+import org.apache.mina.filter.ssl.SslFilter;
 
 /**
  * <strong>Internal class, do not use directly.</strong>
@@ -137,6 +138,15 @@ public class DefaultSslConfiguration implements SslConfiguration {
     public String[] getEnabledProtocols()
     {
         //use vm default
+        return null;
+    }
+
+    /**
+    *
+    * @see org.apache.ftpserver.ssl.SslConfiguration#getSslFilter()
+    */
+    public SslFilter getSslFilter()
+    {
         return null;
     }
 }

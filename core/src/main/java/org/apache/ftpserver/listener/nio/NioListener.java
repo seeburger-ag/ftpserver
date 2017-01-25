@@ -179,7 +179,11 @@ public class NioListener extends AbstractListener {
                 SslConfiguration ssl = getSslConfiguration();
                 SslFilter sslFilter;
                 try {
-                    sslFilter = new SslFilter(ssl.getSSLContext());
+                    if(ssl.getSslFilter()==null) {
+                        sslFilter = new SslFilter(ssl.getSSLContext());
+                    } else {
+                        sslFilter = ssl.getSslFilter();
+                    }
                 } catch (GeneralSecurityException e) {
                     throw new FtpServerConfigurationException("SSL could not be initialized, check configuration");
                 }

@@ -23,6 +23,8 @@ import java.security.GeneralSecurityException;
 
 import javax.net.ssl.SSLContext;
 
+import org.apache.mina.filter.ssl.SslFilter;
+
 /**
  * SSL configuration
  *
@@ -76,4 +78,11 @@ public interface SslConfiguration {
      *         performed
      */
     ClientAuth getClientAuth();
+
+    /**
+     * Return a custom SslFilter
+     * @return The custom SslFilter or null
+     */
+    SslFilter getSslFilter();
+
 }
