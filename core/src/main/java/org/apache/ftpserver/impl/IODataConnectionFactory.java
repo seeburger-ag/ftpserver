@@ -363,6 +363,9 @@ public class IODataConnectionFactory implements ServerDataConnectionFactory {
                         dataSoc.connect(new InetSocketAddress(address, port), timeout);
                     }
                 }
+
+                LOG.info("Active data connection opened with local address {} and remote address {}", dataSoc.getLocalSocketAddress().toString(), dataSoc.getRemoteSocketAddress().toString());
+
             } else {
 
                 if (secure) {
@@ -425,7 +428,7 @@ public class IODataConnectionFactory implements ServerDataConnectionFactory {
                     }
                 }
 
-                LOG.debug("Passive data connection opened");
+                LOG.info("Passive data connection opened with local address {} and remote address {}", dataSoc.getLocalSocketAddress().toString(), dataSoc.getRemoteSocketAddress().toString());
             }
         } catch (Exception ex) {
             closeDataConnection();
