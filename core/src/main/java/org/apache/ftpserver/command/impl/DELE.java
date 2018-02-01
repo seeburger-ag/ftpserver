@@ -35,13 +35,13 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <strong>Internal class, do not use directly.</strong>
- * 
+ *
  * <code>DELE &lt;SP&gt; &lt;pathname&gt; &lt;CRLF&gt;</code><br>
- * 
+ *
  * This command causes the file specified in the pathname to be deleted at the
  * server site.
  *
- * @author <a href="http://mina.apache.org">Apache MINA Project</a> 
+ * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class DELE extends AbstractCommand {
 
@@ -73,6 +73,7 @@ public class DELE extends AbstractCommand {
             file = session.getFileSystemView().getFile(fileName);
         } catch (Exception ex) {
             LOG.debug("Could not get file " + fileName, ex);
+            setSessionException(session, ex);
         }
         if (file == null) {
             session.write(LocalizedFtpReply.translate(session, request, context,
@@ -80,7 +81,7 @@ public class DELE extends AbstractCommand {
                     "DELE.invalid", fileName));
             return;
         }
-        
+
         // check file
         fileName = file.getAbsolutePath();
 
@@ -90,7 +91,7 @@ public class DELE extends AbstractCommand {
                     "DELE.invalid", fileName));
             return;
         }
-        
+
         if (!file.isRemovable()) {
             session.write(LocalizedFtpReply.translate(session, request, context,
                     FtpReply.REPLY_450_REQUESTED_FILE_ACTION_NOT_TAKEN,

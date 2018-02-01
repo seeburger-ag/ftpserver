@@ -19,12 +19,19 @@
 
 package org.apache.ftpserver.command;
 
+import org.apache.ftpserver.impl.FtpIoSession;
 
 /**
  * Common base class recommended for {@link Command} implementations
  *
- * @author <a href="http://mina.apache.org">Apache MINA Project</a> 
+ * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public abstract class AbstractCommand implements Command {
 
+    public static final String COMMAND_EXCEPTION = "COMMAND_EXCEPTION";
+
+    protected void setSessionException(final FtpIoSession session, Exception e)
+    {
+        session.setAttribute(COMMAND_EXCEPTION, e);
+    }
 }

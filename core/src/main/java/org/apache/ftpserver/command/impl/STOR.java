@@ -43,9 +43,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <strong>Internal class, do not use directly.</strong>
- * 
+ *
  * <code>STOR &lt;SP&gt; &lt;pathname&gt; &lt;CRLF&gt;</code><br>
- * 
+ *
  * This command causes the server-DTP to accept the data transferred via the
  * data connection and to store the data as a file at the server site. If the
  * file specified in the pathname exists at the server site, then its contents
@@ -104,6 +104,7 @@ public class STOR extends AbstractCommand {
                 file = session.getFileSystemView().getFile(fileName);
             } catch (Exception ex) {
                 LOG.debug("Exception getting file object", ex);
+                setSessionException(session, ex);
             }
             if (file == null) {
                 session.write(LocalizedFtpReply.translate(session, request, context,
@@ -135,6 +136,7 @@ public class STOR extends AbstractCommand {
                 session.write(LocalizedFtpReply.translate(session, request, context,
                         FtpReply.REPLY_425_CANT_OPEN_DATA_CONNECTION, "STOR",
                         fileName));
+                setSessionException(session, e);
                 return;
             }
 
@@ -145,8 +147,8 @@ public class STOR extends AbstractCommand {
                 outStream = file.createOutputStream(skipLen);
                 long transSz = dataConnection.transferFromClient(session.getFtpletSession(), outStream);
 
-                // attempt to close the output stream so that errors in 
-                // closing it will return an error to the client (FTPSERVER-119) 
+                // attempt to close the output stream so that errors in
+                // closing it will return an error to the client (FTPSERVER-119)
                 if(outStream != null) {
                     outStream.close();
                 }
@@ -157,13 +159,14 @@ public class STOR extends AbstractCommand {
                 ServerFtpStatistics ftpStat = (ServerFtpStatistics) context
                         .getFtpStatistics();
                 ftpStat.setUpload(session, file, transSz);
-                
+
             } catch (SocketException ex) {
                 LOG.debug("Socket exception during data transfer", ex);
                 failure = true;
                 session.write(LocalizedFtpReply.translate(session, request, context,
                         FtpReply.REPLY_426_CONNECTION_CLOSED_TRANSFER_ABORTED,
                         "STOR", fileName));
+                setSessionException(session, ex);
             } catch (IOException ex) {
                 LOG.debug("IOException during data transfer", ex);
                 failure = true;
@@ -175,6 +178,7 @@ public class STOR extends AbstractCommand {
                                         context,
                                         FtpReply.REPLY_551_REQUESTED_ACTION_ABORTED_PAGE_TYPE_UNKNOWN,
                                         "STOR", fileName));
+                setSessionException(session, ex);
             } finally {
                 // make sure we really close the output stream
                 IoUtils.close(outStream);

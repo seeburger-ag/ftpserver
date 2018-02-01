@@ -43,16 +43,16 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <strong>Internal class, do not use directly.</strong>
- * 
+ *
  * <code>APPE &lt;SP&gt; &lt;pathname&gt; &lt;CRLF&gt;</code><br>
- * 
+ *
  * This command causes the server-DTP to accept the data transferred via the
  * data connection and to store the data in a file at the server site. If the
  * file specified in the pathname exists at the server site, then the data shall
  * be appended to that file; otherwise the file specified in the pathname shall
  * be created at the server site.
  *
- * @author <a href="http://mina.apache.org">Apache MINA Project</a> 
+ * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class APPE extends AbstractCommand {
 
@@ -110,6 +110,7 @@ public class APPE extends AbstractCommand {
                 file = session.getFileSystemView().getFile(fileName);
             } catch (Exception e) {
                 LOG.debug("File system threw exception", e);
+                setSessionException(session, e);
             }
             if (file == null) {
                 session.write(LocalizedFtpReply.translate(session, request, context,
@@ -147,6 +148,7 @@ public class APPE extends AbstractCommand {
                 session.write(LocalizedFtpReply.translate(session, request, context,
                         FtpReply.REPLY_425_CANT_OPEN_DATA_CONNECTION, "APPE",
                         fileName));
+                setSessionException(session, e);
                 return;
             }
 
@@ -167,8 +169,8 @@ public class APPE extends AbstractCommand {
                 // transfer data
                 long transSz = dataConnection.transferFromClient(session.getFtpletSession(), os);
 
-                // attempt to close the output stream so that errors in 
-                // closing it will return an error to the client (FTPSERVER-119) 
+                // attempt to close the output stream so that errors in
+                // closing it will return an error to the client (FTPSERVER-119)
                 if(os != null) {
                     os.close();
                 }
@@ -179,13 +181,14 @@ public class APPE extends AbstractCommand {
                 ServerFtpStatistics ftpStat = (ServerFtpStatistics) context
                         .getFtpStatistics();
                 ftpStat.setUpload(session, file, transSz);
-                
+
             } catch (SocketException e) {
                 LOG.debug("SocketException during file upload", e);
                 failure = true;
                 session.write(LocalizedFtpReply.translate(session, request, context,
                         FtpReply.REPLY_426_CONNECTION_CLOSED_TRANSFER_ABORTED,
                         "APPE", fileName));
+                setSessionException(session, e);
             } catch (IOException e) {
                 LOG.debug("IOException during file upload", e);
                 failure = true;
@@ -197,6 +200,7 @@ public class APPE extends AbstractCommand {
                                         context,
                                         FtpReply.REPLY_551_REQUESTED_ACTION_ABORTED_PAGE_TYPE_UNKNOWN,
                                         "APPE", fileName));
+                setSessionException(session, e);
             } finally {
                 // make sure we really close the output stream
                 IoUtils.close(os);

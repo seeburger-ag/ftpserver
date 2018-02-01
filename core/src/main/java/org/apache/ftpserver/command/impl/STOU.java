@@ -44,9 +44,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <strong>Internal class, do not use directly.</strong>
- * 
+ *
  * <code>STOU &lt;CRLF&gt;</code><br>
- * 
+ *
  * This command behaves like STOR except that the resultant file is to be
  * created in the current directory under a name unique to that directory. The
  * 150 Transfer Started response must include the name generated, See RFC1123
@@ -107,6 +107,7 @@ public class STOU extends AbstractCommand {
                 }
             } catch (Exception ex) {
                 LOG.debug("Exception getting file object", ex);
+                setSessionException(session, ex);
             }
 
             if (file == null) {
@@ -141,6 +142,7 @@ public class STOU extends AbstractCommand {
                 session.write(LocalizedFtpReply.translate(session, request, context,
                         FtpReply.REPLY_425_CANT_OPEN_DATA_CONNECTION, "STOU",
                         fileName));
+                setSessionException(session, e);
                 return;
             }
 
@@ -152,8 +154,8 @@ public class STOU extends AbstractCommand {
                 // transfer data
                 long transSz = dataConnection.transferFromClient(session.getFtpletSession(), os);
 
-                // attempt to close the output stream so that errors in 
-                // closing it will return an error to the client (FTPSERVER-119) 
+                // attempt to close the output stream so that errors in
+                // closing it will return an error to the client (FTPSERVER-119)
                 if(os != null) {
                     os.close();
                 }
@@ -166,13 +168,14 @@ public class STOU extends AbstractCommand {
                 if (ftpStat != null) {
                     ftpStat.setUpload(session, file, transSz);
                 }
-                
+
             } catch (SocketException ex) {
                 LOG.debug("Socket exception during data transfer", ex);
                 failure = true;
                 session.write(LocalizedFtpReply.translate(session, request, context,
                         FtpReply.REPLY_426_CONNECTION_CLOSED_TRANSFER_ABORTED,
                         "STOU", fileName));
+                setSessionException(session, ex);
             } catch (IOException ex) {
                 LOG.debug("IOException during data transfer", ex);
                 failure = true;
@@ -184,6 +187,7 @@ public class STOU extends AbstractCommand {
                                         context,
                                         FtpReply.REPLY_551_REQUESTED_ACTION_ABORTED_PAGE_TYPE_UNKNOWN,
                                         "STOU", fileName));
+                setSessionException(session, ex);
             } finally {
                 // make sure we really close the output stream
                 IoUtils.close(os);

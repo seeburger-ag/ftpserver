@@ -35,9 +35,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <strong>Internal class, do not use directly.</strong>
- * 
+ *
  * <code>RMD  &lt;SP&gt; &lt;pathname&gt; &lt;CRLF&gt;</code><br>
- * 
+ *
  * This command causes the directory specified in the pathname to be removed as
  * a directory (if the pathname is absolute) or as a subdirectory of the current
  * working directory (if the pathname is relative).
@@ -73,6 +73,7 @@ public class RMD extends AbstractCommand {
             file = session.getFileSystemView().getFile(fileName);
         } catch (Exception ex) {
             LOG.debug("Exception getting file object", ex);
+            setSessionException(session, ex);
         }
         if (file == null) {
             session.write(LocalizedFtpReply.translate(session, request, context,
@@ -83,7 +84,7 @@ public class RMD extends AbstractCommand {
 
         fileName = file.getAbsolutePath();
 
-        // first let's make sure the path is a directory 
+        // first let's make sure the path is a directory
         if (!file.isDirectory()) {
             session.write(LocalizedFtpReply.translate(session, request, context,
                     FtpReply.REPLY_550_REQUESTED_ACTION_NOT_TAKEN,
@@ -91,8 +92,8 @@ public class RMD extends AbstractCommand {
             return;
         }
 
-        // then make sure that the client did not request the deletion of 
-        // current working directory.   
+        // then make sure that the client did not request the deletion of
+        // current working directory.
         FtpFile cwd = session.getFileSystemView().getWorkingDirectory();
         if(file.equals(cwd)) {
             session.write(LocalizedFtpReply.translate(session, request, context,
@@ -100,8 +101,8 @@ public class RMD extends AbstractCommand {
                 fileName));
             return;
         }
-        
-        // now check to see if the user have permission to delete this directory 
+
+        // now check to see if the user have permission to delete this directory
         if (!file.isRemovable()) {
             session.write(LocalizedFtpReply.translate(session, request, context,
                     FtpReply.REPLY_550_REQUESTED_ACTION_NOT_TAKEN,
@@ -125,7 +126,7 @@ public class RMD extends AbstractCommand {
             ftpStat.setRmdir(session, file);
 
         } else {
-        	 
+
             session.write(LocalizedFtpReply.translate(session, request, context,
                     FtpReply.REPLY_450_REQUESTED_FILE_ACTION_NOT_TAKEN, "RMD",
                     fileName));

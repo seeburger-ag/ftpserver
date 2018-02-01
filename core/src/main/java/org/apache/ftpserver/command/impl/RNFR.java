@@ -34,9 +34,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <strong>Internal class, do not use directly.</strong>
- * 
+ *
  * <code>RNFR &lt;SP&gt; &lt;pathname&gt; &lt;CRLF&gt;</code><br>
- * 
+ *
  * This command specifies the old pathname of the file which is to be renamed.
  * This command must be immediately followed by a "rename to" command specifying
  * the new file pathname.
@@ -72,6 +72,7 @@ public class RNFR extends AbstractCommand {
             renFr = session.getFileSystemView().getFile(fileName);
         } catch (Exception ex) {
             LOG.debug("Exception getting file object", ex);
+            setSessionException(session, ex);
         }
 
         // check file

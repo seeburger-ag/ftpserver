@@ -19,7 +19,6 @@
 
 package org.apache.ftpserver.command.impl;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.apache.ftpserver.command.AbstractCommand;
@@ -36,14 +35,14 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <strong>Internal class, do not use directly.</strong>
- * 
+ *
  * <code>MKD  &lt;SP&gt; &lt;pathname&gt; &lt;CRLF&gt;</code><br>
- * 
+ *
  * This command causes the directory specified in the pathname to be created as
  * a directory (if the pathname is absolute) or as a subdirectory of the current
  * working directory (if the pathname is relative).
  *
- * @author <a href="http://mina.apache.org">Apache MINA Project</a> 
+ * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class MKD extends AbstractCommand {
 
@@ -74,6 +73,7 @@ public class MKD extends AbstractCommand {
             file = session.getFileSystemView().getFile(fileName);
         } catch (Exception ex) {
             LOG.debug("Exception getting file object", ex);
+            setSessionException(session, ex);
         }
         if (file == null) {
             session.write(LocalizedFtpReply.translate(session, request, context,

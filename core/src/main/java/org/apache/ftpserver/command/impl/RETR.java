@@ -45,9 +45,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <strong>Internal class, do not use directly.</strong>
- * 
+ *
  * <code>RETR &lt;SP&gt; &lt;pathname&gt; &lt;CRLF&gt;</code><br>
- * 
+ *
  * This command causes the server-DTP to transfer a copy of the file, specified
  * in the pathname, to the server- or user-DTP at the other end of the data
  * connection. The status and contents of the file at the server site shall be
@@ -91,6 +91,7 @@ public class RETR extends AbstractCommand {
                 file = session.getFileSystemView().getFile(fileName);
             } catch (Exception ex) {
                 LOG.debug("Exception getting file object", ex);
+                setSessionException(session, ex);
             }
             if (file == null) {
                 session.write(LocalizedFtpReply.translate(session, request, context,
@@ -154,6 +155,7 @@ public class RETR extends AbstractCommand {
                 session.write(LocalizedFtpReply.translate(session, request, context,
                         FtpReply.REPLY_425_CANT_OPEN_DATA_CONNECTION, "RETR",
                         null));
+                setSessionException(session, e);
                 return;
             }
 
@@ -164,8 +166,8 @@ public class RETR extends AbstractCommand {
 
                 // transfer data
                 long transSz = dataConnection.transferToClient(session.getFtpletSession(), is);
-                // attempt to close the input stream so that errors in 
-                // closing it will return an error to the client (FTPSERVER-119) 
+                // attempt to close the input stream so that errors in
+                // closing it will return an error to the client (FTPSERVER-119)
                 if(is != null) {
                     is.close();
                 }
@@ -178,13 +180,14 @@ public class RETR extends AbstractCommand {
                 if (ftpStat != null) {
                     ftpStat.setDownload(session, file, transSz);
                 }
-                
+
             } catch (SocketException ex) {
                 LOG.debug("Socket exception during data transfer", ex);
                 failure = true;
                 session.write(LocalizedFtpReply.translate(session, request, context,
                         FtpReply.REPLY_426_CONNECTION_CLOSED_TRANSFER_ABORTED,
                         "RETR", fileName));
+                setSessionException(session, ex);
             } catch (IOException ex) {
                 LOG.debug("IOException during data transfer", ex);
                 failure = true;
@@ -196,6 +199,7 @@ public class RETR extends AbstractCommand {
                                         context,
                                         FtpReply.REPLY_551_REQUESTED_ACTION_ABORTED_PAGE_TYPE_UNKNOWN,
                                         "RETR", fileName));
+                setSessionException(session, ex);
             } finally {
                 // make sure we really close the input stream
                 IoUtils.close(is);
