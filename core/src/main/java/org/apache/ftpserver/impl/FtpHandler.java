@@ -27,6 +27,7 @@ import org.apache.ftpserver.listener.Listener;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
+import org.apache.mina.filter.FilterEvent;
 
 /**
  * <strong>Internal class, do not use directly.</strong>
@@ -85,4 +86,8 @@ public interface FtpHandler {
      * out.
      */
     void messageSent(FtpIoSession session, FtpReply reply) throws Exception;
+
+    void inputClosed(FtpIoSession session) throws Exception;
+
+    void event(FtpIoSession ftpSession, FilterEvent event);
 }

@@ -796,16 +796,6 @@ public class FtpIoSession implements IoSession {
 	}
 
 	/**
-	 * Indicates whether the control socket for this session is secure, that is,
-	 * running over SSL/TLS
-	 * 
-	 * @return true if the control socket is secured
-	 */
-	public boolean isSecure() {
-		return getFilterChain().contains(SslFilter.class);
-	}
-
-	/**
 	 * Increase the number of bytes written on the data connection
 	 * 
 	 * @param increment
@@ -876,4 +866,20 @@ public class FtpIoSession implements IoSession {
 	public void updateThroughput(long currentTime, boolean force) {
 		wrappedSession.updateThroughput(currentTime, force);
 	}
+
+    public CloseFuture closeNow() {
+        return wrappedSession.closeNow();
+    }
+
+    public CloseFuture closeOnFlush() {
+        return wrappedSession.closeOnFlush();
+    }
+
+    public boolean isActive() {
+        return wrappedSession.isActive();
+    }
+
+    public boolean isSecured() {
+        return wrappedSession.isSecured();
+    }
 }

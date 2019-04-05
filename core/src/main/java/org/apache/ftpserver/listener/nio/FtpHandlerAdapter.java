@@ -29,6 +29,7 @@ import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionConfig;
+import org.apache.mina.filter.FilterEvent;
 import org.apache.mina.filter.logging.MdcInjectionFilter;
 import org.apache.mina.transport.socket.SocketSessionConfig;
 
@@ -102,7 +103,15 @@ public class FtpHandlerAdapter implements IoHandler {
 
     public void setFtpHandler(FtpHandler handler) {
         this.ftpHandler = handler;
-
     }
 
+    public void inputClosed(IoSession session) throws Exception {
+        FtpIoSession ftpSession = new FtpIoSession(session, context);
+        ftpHandler.inputClosed(ftpSession);
+    }
+
+    public void event(IoSession session, FilterEvent event) throws Exception {
+        FtpIoSession ftpSession = new FtpIoSession(session, context);
+        ftpHandler.event(ftpSession, event);
+    }
 }
