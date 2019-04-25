@@ -879,6 +879,10 @@ public class FtpIoSession implements IoSession {
         return wrappedSession.isActive();
     }
 
+    public boolean isSecure() {
+        return isSecured();
+    }
+
     public boolean isSecured() {
         return wrappedSession.isSecured();
     }
