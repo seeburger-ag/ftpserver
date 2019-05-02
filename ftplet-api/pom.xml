@@ -17,12 +17,12 @@
 	<parent>
 		<artifactId>ftpserver-parent</artifactId>
 		<groupId>com.seeburger.apache.ftpserver</groupId>
-		<version>1.0.6.SEE28</version>
+		<version>1.0.6.SEE29-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.seeburger.apache.ftpserver</groupId>
 	<artifactId>ftplet-api</artifactId>
-	<version>1.0.6.SEE28</version>
+	<version>1.0.6.SEE29-SNAPSHOT</version>
 	<packaging>bundle</packaging>
 	<name>Apache Ftplet API</name>
 	<description> Ftplets are, similar to servlets, an API to plug into the
