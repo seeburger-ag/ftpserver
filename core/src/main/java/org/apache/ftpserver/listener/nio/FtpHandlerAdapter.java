@@ -106,12 +106,10 @@ public class FtpHandlerAdapter implements IoHandler {
     }
 
     public void inputClosed(IoSession session) throws Exception {
-        FtpIoSession ftpSession = new FtpIoSession(session, context);
-        ftpHandler.inputClosed(ftpSession);
+        session.closeOnFlush();
     }
 
     public void event(IoSession session, FilterEvent event) throws Exception {
-        FtpIoSession ftpSession = new FtpIoSession(session, context);
-        ftpHandler.event(ftpSession, event);
+        // do nothing
     }
 }

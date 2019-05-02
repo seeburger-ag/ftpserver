@@ -218,7 +218,8 @@ public class DefaultFtpSession implements FtpSession {
     }
 
     public boolean isSecure() {
-        return ioSession.isSecured();
+        // TODO Auto-generated method stub
+        return ioSession.isSecure();
     }
 
     /**

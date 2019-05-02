@@ -33,7 +33,6 @@ import org.apache.ftpserver.ftpletcontainer.FtpletContainer;
 import org.apache.ftpserver.listener.Listener;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.write.WriteToClosedSessionException;
-import org.apache.mina.filter.FilterEvent;
 import org.apache.mina.filter.codec.ProtocolDecoderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -292,14 +291,6 @@ public class DefaultFtpHandler implements FtpHandler {
     public void messageSent(final FtpIoSession session, final FtpReply reply)
             throws Exception {
         // do nothing
-    }
 
-    public void inputClosed(FtpIoSession session)
-            throws Exception {
-        // do nothing
-    }
-
-    public void event(FtpIoSession ftpSession, FilterEvent event) {
-        // do nothing
     }
 }
