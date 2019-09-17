@@ -40,7 +40,7 @@ import org.apache.mina.filter.firewall.Subnet;
 public class MyCustomListener implements Listener {
 
     private int port;
-    
+
     public void setPort(int port) {
         this.port = port;
     }
@@ -82,19 +82,19 @@ public class MyCustomListener implements Listener {
     }
 
     public void resume() {
-        
+
     }
 
     public void start(FtpServerContext serverContext) {
-        
+
     }
 
     public void stop() {
-        
+
     }
 
     public void suspend() {
-        
+
     }
 
     public List<InetAddress> getBlockedAddresses() {
@@ -114,4 +114,13 @@ public class MyCustomListener implements Listener {
         return null;
     }
 
+    public boolean isSkipNlstFolders()
+    {
+        return false;
+    }
+
+    public int getBacklog()
+    {
+        return 0;
+    }
 }

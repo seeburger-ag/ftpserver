@@ -33,7 +33,7 @@ import org.apache.ftpserver.ssl.SslConfiguration;
 import org.apache.mina.filter.firewall.Subnet;
 
 /**
- * Factory for listeners. Listeners themselves are immutable and must be 
+ * Factory for listeners. Listeners themselves are immutable and must be
  * created using this factory.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
@@ -56,7 +56,7 @@ public class ListenerFactory {
     private List<InetAddress> blockedAddresses;
 
     private List<Subnet> blockedSubnets;
-    
+
     private SelectorProvider selectorProvider = null;
     /**
      * The IP filter
@@ -64,6 +64,8 @@ public class ListenerFactory {
     private IpFilter ipFilter = null;
 
     private int backlog = 500;
+
+    private boolean skipNlstFolders = false;
 
     /**
      * Default constructor
@@ -83,10 +85,13 @@ public class ListenerFactory {
         implicitSsl = listener.isImplicitSsl();
         dataConnectionConfig = listener.getDataConnectionConfiguration();
         idleTimeout = listener.getIdleTimeout();
-        //TODO remove the next two lines if and when we remove the deprecated methods. 
+        //TODO remove the next two lines if and when we remove the deprecated methods.
         blockedAddresses = listener.getBlockedAddresses();
         blockedSubnets = listener.getBlockedSubnets();
         this.ipFilter = listener.getIpFilter();
+        skipNlstFolders = listener.isSkipNlstFolders();
+        selectorProvider = listener.getSelectorProvider();
+        backlog = listener.getBacklog();
     }
 
     /**
@@ -99,7 +104,7 @@ public class ListenerFactory {
     	}catch(UnknownHostException e){
     		throw new FtpServerConfigurationException("Unknown host",e);
     	}
-    	//Deal with the old style black list and new IP Filter here. 
+    	//Deal with the old style black list and new IP Filter here.
     	if(ipFilter != null) {
     		 if(blockedAddresses != null || blockedSubnets != null) {
     			 throw new IllegalStateException("Usage of IPFilter in combination with blockedAddesses/subnets is not supported. ");
@@ -111,14 +116,14 @@ public class ListenerFactory {
     	}
     	else {
 	        return new NioListener(serverAddress, port, implicitSsl, ssl,
-	        	dataConnectionConfig, idleTimeout, ipFilter, selectorProvider, backlog);
+	        	dataConnectionConfig, idleTimeout, ipFilter, selectorProvider, backlog, skipNlstFolders);
     	}
     }
 
     /**
      * Is listeners created by this factory in SSL mode automatically or must the client explicitly
      * request to use SSL
-     * 
+     *
      * @return true is listeners created by this factory is automatically in SSL mode, false
      *         otherwise
      */
@@ -129,7 +134,7 @@ public class ListenerFactory {
     /**
      * Should listeners created by this factory be in SSL mode automatically or must the client
      * explicitly request to use SSL
-     * 
+     *
      * @param implicitSsl
      *            true is listeners created by this factory should automatically be in SSL mode,
      *            false otherwise
@@ -139,8 +144,8 @@ public class ListenerFactory {
     }
 
     /**
-     * Get the port on which listeners created by this factory is waiting for requests. 
-     * 
+     * Get the port on which listeners created by this factory is waiting for requests.
+     *
      * @return The port
      */
     public int getPort() {
@@ -150,7 +155,7 @@ public class ListenerFactory {
     /**
      * Set the port on which listeners created by this factory will accept requests. Or set to 0
      * (zero) is the port should be automatically assigned
-     * 
+     *
      * @param port
      *            The port to use.
      */
@@ -161,7 +166,7 @@ public class ListenerFactory {
     /**
      * Get the {@link InetAddress} used for binding the local socket. Defaults
      * to null, that is, the server binds to all available network interfaces
-     * 
+     *
      * @return The local socket {@link InetAddress}, if set
      */
     public String getServerAddress()  {
@@ -171,7 +176,7 @@ public class ListenerFactory {
     /**
      * Set the {@link InetAddress} used for binding the local socket. Defaults
      * to null, that is, the server binds to all available network interfaces
-     * 
+     *
      * @param serverAddress
      *            The local socket {@link InetAddress}
      */
@@ -181,7 +186,7 @@ public class ListenerFactory {
 
     /**
      * Get the {@link SslConfiguration} used for listeners created by this factory
-     * 
+     *
      * @return The {@link SslConfiguration}
      */
     public SslConfiguration getSslConfiguration() {
@@ -198,7 +203,7 @@ public class ListenerFactory {
 
     /**
      * Get configuration for data connections made within listeners created by this factory
-     * 
+     *
      * @return The data connection configuration
      */
     public DataConnectionConfiguration getDataConnectionConfiguration() {
@@ -207,7 +212,7 @@ public class ListenerFactory {
 
     /**
      * Set configuration for data connections made within listeners created by this factory
-     * 
+     *
      * @param dataConnectionConfig
      *            The data connection configuration
      */
@@ -217,8 +222,8 @@ public class ListenerFactory {
     }
 
     /**
-     * Get the number of seconds during which no network activity 
-     * is allowed before a session is closed due to inactivity.  
+     * Get the number of seconds during which no network activity
+     * is allowed before a session is closed due to inactivity.
      * @return The idle time out
      */
     public int getIdleTimeout() {
@@ -226,8 +231,8 @@ public class ListenerFactory {
     }
 
     /**
-     * Set the number of seconds during which no network activity 
-     * is allowed before a session is closed due to inactivity.  
+     * Set the number of seconds during which no network activity
+     * is allowed before a session is closed due to inactivity.
      *
      * @param idleTimeout The idle timeout in seconds
      */
@@ -236,10 +241,10 @@ public class ListenerFactory {
     }
 
     /**
-     * @deprecated Replaced by the IpFilter.    
+     * @deprecated Replaced by the IpFilter.
      * Retrieves the {@link InetAddress} for which listeners created by this factory blocks
      * connections
-     * 
+     *
      * @return The list of {@link InetAddress}es
      */
     @Deprecated
@@ -248,10 +253,10 @@ public class ListenerFactory {
     }
 
     /**
-     * @deprecated Replaced by the IpFilter.    
+     * @deprecated Replaced by the IpFilter.
      * Sets the {@link InetAddress} that listeners created by this factory will block from
      * connecting
-     * 
+     *
      * @param blockedAddresses
      *            The list of {@link InetAddress}es
      */
@@ -261,9 +266,9 @@ public class ListenerFactory {
     }
 
     /**
-     * @deprecated Replaced by the IpFilter.    
+     * @deprecated Replaced by the IpFilter.
      * Retrives the {@link Subnet}s for which listeners created by this factory blocks connections
-     * 
+     *
      * @return The list of {@link Subnet}s
      */
     @Deprecated
@@ -272,9 +277,9 @@ public class ListenerFactory {
     }
 
     /**
-     * @deprecated Replaced by the IpFilter.    
+     * @deprecated Replaced by the IpFilter.
      * Sets the {@link Subnet}s that listeners created by this factory will block from connecting
-     * @param blockedSubnets 
+     * @param blockedSubnets
      *  The list of {@link Subnet}s
      * @param blockedAddresses
      */
@@ -282,10 +287,10 @@ public class ListenerFactory {
     public void setBlockedSubnets(List<Subnet> blockedSubnets) {
         this.blockedSubnets = blockedSubnets;
     }
-    
+
     /**
 	 * Returns the currently configured IP filter, if any.
-	 * 
+	 *
 	 * @return the currently configured IP filter, if any. Returns
 	 *         <code>null</code>, if no IP filter is configured.
 	 */
@@ -295,7 +300,7 @@ public class ListenerFactory {
 
 	/**
 	 * Sets the IP filter to the given filter.
-	 * 
+	 *
 	 * @param ipFilter
 	 *            the IP filter.
 	 */
@@ -330,7 +335,7 @@ public class ListenerFactory {
     {
         this.backlog = backlog;
     }
-    
+
     /**
      * Returns the current set accept backlog
      * @return backlog
@@ -338,5 +343,15 @@ public class ListenerFactory {
     public int getBacklog()
     {
         return backlog;
+    }
+
+    public boolean isSkipNlstFolders()
+    {
+        return skipNlstFolders;
+    }
+
+    public void setSkipNlstFolders(boolean skipNlstFolders)
+    {
+        this.skipNlstFolders = skipNlstFolders;
     }
 }

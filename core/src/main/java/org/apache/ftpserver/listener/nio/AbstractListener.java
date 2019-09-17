@@ -34,7 +34,7 @@ import org.apache.mina.filter.firewall.Subnet;
 
 /**
  * <strong>Internal class, do not use directly.</strong>
- * 
+ *
  * Common base class for listener implementations
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
@@ -48,39 +48,41 @@ public abstract class AbstractListener implements Listener {
     private SslConfiguration ssl;
 
     private boolean implicitSsl = false;
-    
+
     private int idleTimeout;
-    
+
     private List<InetAddress> blockedAddresses;
 
     private List<Subnet> blockedSubnets;
-    
+
     private IpFilter ipFilter = null;
 
     private DataConnectionConfiguration dataConnectionConfig;
 
     private SelectorProvider selectorProvider = null;
-    
+
     private int backlog = 500;
 
+    private boolean skipNlstFolders = false;
+
     /**
-     * @deprecated Use the constructor with IpFilter instead. 
+     * @deprecated Use the constructor with IpFilter instead.
      * Constructor for internal use, do not use directly. Instead use {@link ListenerFactory}
      */
     @Deprecated
-    public AbstractListener(String serverAddress, int port, boolean implicitSsl, 
+    public AbstractListener(String serverAddress, int port, boolean implicitSsl,
             SslConfiguration sslConfiguration, DataConnectionConfiguration dataConnectionConfig,
             int idleTimeout, List<InetAddress> blockedAddresses, List<Subnet> blockedSubnets) {
-    	this(serverAddress, port, implicitSsl, sslConfiguration, 
+    	this(serverAddress, port, implicitSsl, sslConfiguration,
     		dataConnectionConfig, idleTimeout, createBlackListFilter(blockedAddresses, blockedSubnets));
     	this.blockedAddresses = blockedAddresses;
     	this.blockedSubnets = blockedSubnets;
     }
-    
+
     /**
      * Constructor for internal use, do not use directly. Instead use {@link ListenerFactory}
      */
-    public AbstractListener(String serverAddress, int port, boolean implicitSsl, 
+    public AbstractListener(String serverAddress, int port, boolean implicitSsl,
             SslConfiguration sslConfiguration, DataConnectionConfiguration dataConnectionConfig,
             int idleTimeout, IpFilter ipFilter) {
         this.serverAddress = serverAddress;
@@ -91,7 +93,7 @@ public abstract class AbstractListener implements Listener {
         this.idleTimeout = idleTimeout;
         this.ipFilter = ipFilter;
     }
-    
+
     /**
      * Constructor for internal use, do not use directly. Instead use {@link ListenerFactory}
      */
@@ -107,7 +109,7 @@ public abstract class AbstractListener implements Listener {
         this.ipFilter = ipFilter;
         this.selectorProvider = selectorProvider;
     }
-    
+
     /**
      * Constructor for internal use, do not use directly. Instead use {@link ListenerFactory}
      */
@@ -124,14 +126,33 @@ public abstract class AbstractListener implements Listener {
         this.selectorProvider = selectorProvider;
         this.backlog = backlog;
     }
-    
+
     /**
-     * Creates an IpFilter that blacklists the given IP addresses and/or Subnets. 
+     * Constructor for internal use, do not use directly. Instead use {@link ListenerFactory}
+     */
+    public AbstractListener(String serverAddress, int port, boolean implicitSsl,
+            SslConfiguration sslConfiguration, DataConnectionConfiguration dataConnectionConfig,
+            int idleTimeout, IpFilter ipFilter, SelectorProvider selectorProvider, int backlog,
+            boolean skipNlstFolders) {
+        this.serverAddress = serverAddress;
+        this.port = port;
+        this.implicitSsl = implicitSsl;
+        this.dataConnectionConfig = dataConnectionConfig;
+        this.ssl = sslConfiguration;
+        this.idleTimeout = idleTimeout;
+        this.ipFilter = ipFilter;
+        this.selectorProvider = selectorProvider;
+        this.backlog = backlog;
+        this.skipNlstFolders = skipNlstFolders;
+    }
+
+    /**
+     * Creates an IpFilter that blacklists the given IP addresses and/or Subnets.
      * @param blockedAddresses the addresses to block
      * @param blockedSubnets the subnets to block
      * @return an IpFilter that blacklists the given IP addresses and/or Subnets.
      */
-    private static IpFilter createBlackListFilter(List<InetAddress> blockedAddresses, 
+    private static IpFilter createBlackListFilter(List<InetAddress> blockedAddresses,
     	List<Subnet> blockedSubnets) {
     	if(blockedAddresses == null && blockedSubnets == null) {
     		return null;
@@ -148,7 +169,7 @@ public abstract class AbstractListener implements Listener {
 		}
 		return ipFilter;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -170,7 +191,7 @@ public abstract class AbstractListener implements Listener {
     protected void setPort(int port) {
         this.port = port;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -193,8 +214,8 @@ public abstract class AbstractListener implements Listener {
     }
 
     /**
-     * Get the number of seconds during which no network activity 
-     * is allowed before a session is closed due to inactivity.  
+     * Get the number of seconds during which no network activity
+     * is allowed before a session is closed due to inactivity.
      * @return The idle time out
      */
     public int getIdleTimeout() {
@@ -204,7 +225,7 @@ public abstract class AbstractListener implements Listener {
     /**
      * Retrives the {@link InetAddress} for which this listener blocks
      * connections
-     * 
+     *
      * @return The list of {@link InetAddress}es
      */
     public List<InetAddress> getBlockedAddresses() {
@@ -213,13 +234,13 @@ public abstract class AbstractListener implements Listener {
 
     /**
      * Retrieves the {@link Subnet}s for this listener blocks connections
-     * 
+     *
      * @return The list of {@link Subnet}s
      */
     public List<Subnet> getBlockedSubnets() {
         return blockedSubnets;
     }
-    
+
     public IpFilter getIpFilter() {
     	return ipFilter;
     }
@@ -235,5 +256,10 @@ public abstract class AbstractListener implements Listener {
     public int getBacklog()
     {
         return backlog;
+    }
+
+    public boolean isSkipNlstFolders()
+    {
+        return skipNlstFolders;
     }
 }

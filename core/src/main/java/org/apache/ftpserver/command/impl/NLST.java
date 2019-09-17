@@ -45,15 +45,15 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <strong>Internal class, do not use directly.</strong>
- * 
+ *
  * <code>NLST [&lt;SP&gt; &lt;pathname&gt;] &lt;CRLF&gt;</code><br>
- * 
+ *
  * This command causes a directory listing to be sent from server to user site.
  * The pathname should specify a directory or other system-specific file group
  * descriptor; a null argument implies the current directory. The server will
  * return a stream of names of files and no other information.
  *
- * @author <a href="http://mina.apache.org">Apache MINA Project</a> 
+ * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class NLST extends AbstractCommand {
 
@@ -121,7 +121,8 @@ public class NLST extends AbstractCommand {
                 }
 
                 dataConnection.transferToClient(session.getFtpletSession(), directoryLister.listFiles(
-                        parsedArg, session.getFileSystemView(), formater));
+                        parsedArg, session.getFileSystemView(), formater, session.getListener().isSkipNlstFolders()));
+
             } catch (SocketException ex) {
                 LOG.debug("Socket exception during data transfer", ex);
                 failure = true;

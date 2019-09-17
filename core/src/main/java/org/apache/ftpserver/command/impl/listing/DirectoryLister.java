@@ -29,18 +29,21 @@ import org.apache.ftpserver.ftplet.FtpFile;
 
 /**
  * <strong>Internal class, do not use directly.</strong>
- * 
+ *
  * This class prints file listing.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class DirectoryLister {
 
-    private String traverseFiles(final List<FtpFile> files,
+    private String traverseFiles(final List<FtpFile> files, boolean nlstSkipFolders,
             final FileFilter filter, final FileFormater formater) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append(traverseFiles(files, filter, formater, true));
+        if (!nlstSkipFolders)
+        {
+            sb.append(traverseFiles(files, filter, formater, true));
+        }
         sb.append(traverseFiles(files, filter, formater, false));
 
         return sb.toString();
@@ -66,7 +69,7 @@ public class DirectoryLister {
     }
 
     public String listFiles(final ListArgument argument,
-            final FileSystemView fileSystemView, final FileFormater formater)
+            final FileSystemView fileSystemView, final FileFormater formater, boolean nlstSkipFolders)
             throws IOException {
 
         StringBuilder sb = new StringBuilder();
@@ -82,10 +85,17 @@ public class DirectoryLister {
                 filter = new RegexFileFilter(argument.getPattern(), filter);
             }
 
-            sb.append(traverseFiles(files, filter, formater));
+            sb.append(traverseFiles(files, nlstSkipFolders, filter, formater));
         }
 
         return sb.toString();
+    }
+
+    public String listFiles(final ListArgument argument,
+                            final FileSystemView fileSystemView, final FileFormater formater)
+                            throws IOException {
+
+        return listFiles(argument, fileSystemView, formater, false);
     }
 
     /**
