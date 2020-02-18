@@ -25,6 +25,7 @@ import java.net.SocketException;
 
 import org.apache.ftpserver.command.AbstractCommand;
 import org.apache.ftpserver.command.impl.listing.DirectoryLister;
+import org.apache.ftpserver.command.impl.listing.DirectoryListerWUFTPD;
 import org.apache.ftpserver.command.impl.listing.FileFormater;
 import org.apache.ftpserver.command.impl.listing.LISTFileFormater;
 import org.apache.ftpserver.command.impl.listing.ListArgument;
@@ -34,12 +35,14 @@ import org.apache.ftpserver.ftplet.DataConnection;
 import org.apache.ftpserver.ftplet.DataConnectionFactory;
 import org.apache.ftpserver.ftplet.DefaultFtpReply;
 import org.apache.ftpserver.ftplet.FtpException;
+import org.apache.ftpserver.ftplet.FtpFile;
 import org.apache.ftpserver.ftplet.FtpReply;
 import org.apache.ftpserver.ftplet.FtpRequest;
 import org.apache.ftpserver.impl.FtpIoSession;
 import org.apache.ftpserver.impl.FtpServerContext;
 import org.apache.ftpserver.impl.IODataConnectionFactory;
 import org.apache.ftpserver.impl.LocalizedFtpReply;
+import org.apache.ftpserver.listener.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,22 +63,43 @@ public class NLST extends AbstractCommand {
     private final Logger LOG = LoggerFactory.getLogger(NLST.class);
 
     private static final NLSTFileFormater NLST_FILE_FORMATER = new NLSTFileFormater();
-
     private static final LISTFileFormater LIST_FILE_FORMATER = new LISTFileFormater();
 
     private DirectoryLister directoryLister = new DirectoryLister();
+    private DirectoryListerWUFTPD directoryListerWUFTPD = new DirectoryListerWUFTPD();
 
     /**
      * Execute command
      */
     public void execute(final FtpIoSession session,
             final FtpServerContext context, final FtpRequest request)
-            throws IOException, FtpException {
+            throws IOException, FtpException
+            {
+
 
         try {
 
             // reset state
             session.resetState();
+
+            boolean isFormatTypeWUFTPD = Listener.LIST_FORMAT_TYPE_WUFTPD.equals(session.getListener().getListFormatType());
+
+            FtpFile file = null;
+
+            if (isFormatTypeWUFTPD)
+            {
+                ListArgument parsedArg = ListArgumentParser.parse(request.getArgument());
+                String fileName = parsedArg.getFile();
+                file = session.getFileSystemView().getFile(fileName);
+
+                if(!file.doesExist()) {
+                    LOG.debug("Listing on a non-existing file");
+                    session.write(LocalizedFtpReply.translate(session, request, context,
+                            FtpReply.REPLY_550_REQUESTED_ACTION_NOT_TAKEN, "NLST.missing",
+                            fileName));
+                    return;
+                }
+            }
 
             // 24-10-2007 - added check if PORT or PASV is issued, see
             // https://issues.apache.org/jira/browse/FTPSERVER-110
@@ -91,9 +115,56 @@ public class NLST extends AbstractCommand {
                 }
             }
 
+            String listResult = "";
+
+            if (isFormatTypeWUFTPD)
+            {
+                try
+                {
+                    ListArgument parsedArg = ListArgumentParser.parse(request.getArgument());
+
+                    listResult = directoryListerWUFTPD.listFiles(parsedArg, session.getFileSystemView(), DirectoryListerWUFTPD.COMMAND_NLST, file);
+
+                    if (listResult == null || listResult.trim().isEmpty())
+                    {
+                        String filePathMsg = createWUFTPDStringNotFound(file.getAbsolutePath(), parsedArg.getPattern(), file.isDirectory());
+
+                        session.write(LocalizedFtpReply.translate(session, request, context,
+                                      FtpReply.REPLY_550_REQUESTED_ACTION_NOT_TAKEN,
+                                      "NLST.missing", filePathMsg));
+                        return;
+                    }
+                }
+                catch (SocketException ex)
+                {
+                    LOG.debug("Socket exception during data transfer", ex);
+                    session.write(LocalizedFtpReply.translate(session, request, context,
+                                  FtpReply.REPLY_426_CONNECTION_CLOSED_TRANSFER_ABORTED,
+                                  "NLST", null));
+                    return;
+                }
+                catch (IOException ex)
+                {
+                    LOG.debug("IOException during data transfer", ex);
+                    session.write(LocalizedFtpReply.translate(session, request, context,
+                                  FtpReply.REPLY_551_REQUESTED_ACTION_ABORTED_PAGE_TYPE_UNKNOWN,
+                                  "NLST", null));
+                    return;
+                }
+                catch (IllegalArgumentException e)
+                {
+                    LOG.debug("Illegal listing syntax: " + request.getArgument(), e);
+                    session.write(LocalizedFtpReply.translate(session, request, context,
+                                  FtpReply.REPLY_501_SYNTAX_ERROR_IN_PARAMETERS_OR_ARGUMENTS,
+                                  "LIST", null));
+                    return;
+                }
+            }
+
             // get data connection
             session.write(LocalizedFtpReply.translate(session, request, context,
                     FtpReply.REPLY_150_FILE_STATUS_OKAY, "NLST", null));
+
 
             // print listing data
             DataConnection dataConnection;
@@ -110,19 +181,25 @@ public class NLST extends AbstractCommand {
             boolean failure = false;
             try {
                 // parse argument
-                ListArgument parsedArg = ListArgumentParser.parse(request
-                        .getArgument());
+                ListArgument parsedArg = ListArgumentParser.parse(request.getArgument());
 
                 FileFormater formater;
+
                 if (parsedArg.hasOption('l')) {
                     formater = LIST_FILE_FORMATER;
                 } else {
                     formater = NLST_FILE_FORMATER;
                 }
 
-                dataConnection.transferToClient(session.getFtpletSession(), directoryLister.listFiles(
-                        parsedArg, session.getFileSystemView(), formater, session.getListener().isSkipNlstFolders()));
-
+                if (isFormatTypeWUFTPD)
+                {
+                    dataConnection.transferToClient(session.getFtpletSession(), listResult);
+                }
+                else
+                {
+                    dataConnection.transferToClient(session.getFtpletSession(),
+                                                    directoryLister.listFiles(parsedArg, session.getFileSystemView(), formater, session.getListener().isSkipNlstFolders()));
+                }
             } catch (SocketException ex) {
                 LOG.debug("Socket exception during data transfer", ex);
                 failure = true;
@@ -163,6 +240,38 @@ public class NLST extends AbstractCommand {
             }
         } finally {
             session.getDataConnection().closeDataConnection();
+       }
+
+            }
+
+    private String createWUFTPDStringNotFound(String filePathArg, String pattern, boolean isDirectory)
+    {
+        String filePath = filePathArg;
+        try
+        {
+            if (pattern != null || isDirectory)
+            {
+                if (!filePath.endsWith("/"))
+                {
+                    filePath += "/";
+                }
+
+                if (pattern != null)
+                {
+                    filePath += pattern;
+                }
+                else
+                {
+                    filePath += "*";
+                }
+            }
+
+            return filePath;
+        }
+        catch(Exception ex)
+        {
+            LOG.debug(ex.getMessage(), ex);
+            return "";
         }
     }
 }

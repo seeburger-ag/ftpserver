@@ -123,4 +123,9 @@ public class MyCustomListener implements Listener {
     {
         return 0;
     }
+
+    public String getListFormatType()
+    {
+        return null;
+    }
 }

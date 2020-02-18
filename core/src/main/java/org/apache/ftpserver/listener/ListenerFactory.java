@@ -67,6 +67,8 @@ public class ListenerFactory {
 
     private boolean skipNlstFolders = false;
 
+    private String listFormatType = Listener.LIST_FORMAT_TYPE_STANDARD;
+
     /**
      * Default constructor
      */
@@ -92,6 +94,7 @@ public class ListenerFactory {
         skipNlstFolders = listener.isSkipNlstFolders();
         selectorProvider = listener.getSelectorProvider();
         backlog = listener.getBacklog();
+        listFormatType = listener.getListFormatType();
     }
 
     /**
@@ -116,7 +119,7 @@ public class ListenerFactory {
     	}
     	else {
 	        return new NioListener(serverAddress, port, implicitSsl, ssl,
-	        	dataConnectionConfig, idleTimeout, ipFilter, selectorProvider, backlog, skipNlstFolders);
+	        	dataConnectionConfig, idleTimeout, ipFilter, selectorProvider, backlog, skipNlstFolders, listFormatType);
     	}
     }
 
@@ -353,5 +356,15 @@ public class ListenerFactory {
     public void setSkipNlstFolders(boolean skipNlstFolders)
     {
         this.skipNlstFolders = skipNlstFolders;
+    }
+
+    public String getListFormatType()
+    {
+        return listFormatType;
+    }
+
+    public void setListFormatType(String listFormatType)
+    {
+        this.listFormatType = listFormatType;
     }
 }

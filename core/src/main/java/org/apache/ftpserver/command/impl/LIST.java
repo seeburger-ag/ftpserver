@@ -25,6 +25,7 @@ import java.net.SocketException;
 
 import org.apache.ftpserver.command.AbstractCommand;
 import org.apache.ftpserver.command.impl.listing.DirectoryLister;
+import org.apache.ftpserver.command.impl.listing.DirectoryListerWUFTPD;
 import org.apache.ftpserver.command.impl.listing.LISTFileFormater;
 import org.apache.ftpserver.command.impl.listing.ListArgument;
 import org.apache.ftpserver.command.impl.listing.ListArgumentParser;
@@ -39,14 +40,15 @@ import org.apache.ftpserver.impl.FtpIoSession;
 import org.apache.ftpserver.impl.FtpServerContext;
 import org.apache.ftpserver.impl.IODataConnectionFactory;
 import org.apache.ftpserver.impl.LocalizedFtpReply;
+import org.apache.ftpserver.listener.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * <strong>Internal class, do not use directly.</strong>
- * 
+ *
  * <code>LIST [&lt;SP&gt; &lt;pathname&gt;] &lt;CRLF&gt;</code><br>
- * 
+ *
  * This command causes a list to be sent from the server to the passive DTP. If
  * the pathname specifies a directory or other group of files, the server should
  * transfer a list of files in the specified directory. If the pathname
@@ -54,7 +56,7 @@ import org.slf4j.LoggerFactory;
  * A null argument implies the user's current working or default directory. The
  * data transfer is over the data connection.
  *
- * @author <a href="http://mina.apache.org">Apache MINA Project</a> 
+ * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class LIST extends AbstractCommand {
 
@@ -63,6 +65,7 @@ public class LIST extends AbstractCommand {
     private static final LISTFileFormater LIST_FILE_FORMATER = new LISTFileFormater();
 
     private DirectoryLister directoryLister = new DirectoryLister();
+    private DirectoryListerWUFTPD directoryListerWUFTPD = new DirectoryListerWUFTPD();
 
     /**
      * Execute command.
@@ -77,20 +80,25 @@ public class LIST extends AbstractCommand {
             session.resetState();
 
             // parse argument
-            ListArgument parsedArg = ListArgumentParser.parse(request
-                    .getArgument());
+            ListArgument parsedArg = ListArgumentParser.parse(request.getArgument());
 
-            // checl that the directory or file exists
+            // check that the directory or file exists
             FtpFile file = session.getFileSystemView().getFile(parsedArg.getFile());
-            
+
+            boolean isFormatTypeWUFTPD = Listener.LIST_FORMAT_TYPE_WUFTPD.equals(session.getListener().getListFormatType());
+
             if(!file.doesExist()) {
                 LOG.debug("Listing on a non-existing file");
-                session.write(LocalizedFtpReply.translate(session, request, context,
+
+                if (!isFormatTypeWUFTPD)
+                {
+                    session.write(LocalizedFtpReply.translate(session, request, context,
                         FtpReply.REPLY_450_REQUESTED_FILE_ACTION_NOT_TAKEN, "LIST",
-                        null));             
-                return;
+                        null));
+                    return;
+                }
             }
-            
+
             // 24-10-2007 - added check if PORT or PASV is issued, see
             // https://issues.apache.org/jira/browse/FTPSERVER-110
             DataConnectionFactory connFactory = session.getDataConnection();
@@ -124,9 +132,19 @@ public class LIST extends AbstractCommand {
             boolean failure = false;
 
             try {
-                dataConnection.transferToClient(session.getFtpletSession(), directoryLister.listFiles(
-                        parsedArg, session.getFileSystemView(),
-                        LIST_FILE_FORMATER));
+                    if (isFormatTypeWUFTPD)
+                    {
+                        String listResult = directoryListerWUFTPD.listFiles(parsedArg, session.getFileSystemView(),
+                                                                            DirectoryListerWUFTPD.COMMAND_LIST, file);
+
+                        dataConnection.transferToClient(session.getFtpletSession(), listResult);
+                    }
+                    else
+                    {
+                        dataConnection.transferToClient(session.getFtpletSession(), directoryLister.listFiles(
+                                                                                                              parsedArg, session.getFileSystemView(),
+                                                                                                              LIST_FILE_FORMATER));
+                    }
             } catch (SocketException ex) {
                 LOG.debug("Socket exception during list transfer", ex);
                 failure = true;

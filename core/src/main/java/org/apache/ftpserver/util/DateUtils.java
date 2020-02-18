@@ -29,7 +29,7 @@ import java.util.TimeZone;
 
 /**
  * <strong>Internal class, do not use directly.</strong>
- * 
+ *
  * Standard date related utility methods.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
@@ -54,9 +54,9 @@ public class DateUtils {
             df.setTimeZone(TimeZone.getTimeZone("GMT"));
             return df;
         }
-        
+
     };
-    
+
     /**
      * Get unix style date string.
      */
@@ -167,12 +167,16 @@ public class DateUtils {
      * Get FTP date.
      */
     public final static String getFtpDate(long millis) {
+        return getFtpDate(millis, true);
+    }
+
+    public final static String getFtpDate(long millis, boolean addMilliseconds) {
         StringBuilder sb = new StringBuilder(20);
-        
+
         // MLST should use UTC
         Calendar cal = new GregorianCalendar(TIME_ZONE_UTC);
         cal.setTimeInMillis(millis);
-        
+
 
         // year
         sb.append(cal.get(Calendar.YEAR));
@@ -212,25 +216,29 @@ public class DateUtils {
         }
         sb.append(sec);
 
-        // millisecond
-        sb.append('.');
-        int milli = cal.get(Calendar.MILLISECOND);
-        if (milli < 100) {
-            sb.append('0');
+        if (addMilliseconds)
+        {
+            // millisecond
+            sb.append('.');
+            int milli = cal.get(Calendar.MILLISECOND);
+            if (milli < 100) {
+                sb.append('0');
+            }
+            if (milli < 10) {
+                sb.append('0');
+            }
+            sb.append(milli);
         }
-        if (milli < 10) {
-            sb.append('0');
-        }
-        sb.append(milli);
+
         return sb.toString();
     }
     /*
-     *  Parses a date in the format used by the FTP commands 
+     *  Parses a date in the format used by the FTP commands
      *  involving dates(MFMT, MDTM)
      */
     public final static Date parseFTPDate(String dateStr) throws ParseException{
         return FTP_DATE_FORMAT.get().parse(dateStr);
-        
+
     }
-    
+
 }

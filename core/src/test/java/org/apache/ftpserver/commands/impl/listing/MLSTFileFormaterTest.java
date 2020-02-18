@@ -38,7 +38,7 @@ import org.apache.ftpserver.ftplet.FtpFile;
 @SuppressWarnings("deprecation")
 public class MLSTFileFormaterTest extends TestCase {
 
-    private static final Calendar LAST_MODIFIED_IN_2005 = Calendar.getInstance(TimeZone.getTimeZone("GMT")); 
+    private static final Calendar LAST_MODIFIED_IN_2005 = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
     static {
         LAST_MODIFIED_IN_2005.clear();
         LAST_MODIFIED_IN_2005.set(2005, Calendar.JANUARY, 2, 3, 4, 5);
@@ -131,7 +131,13 @@ public class MLSTFileFormaterTest extends TestCase {
 
         public boolean setLastModified(long time) {
            return false;
-            
+
+        }
+
+        public String getParentPath()
+        {
+            // TODO Auto-generated method stub
+            return null;
         }
     }
 

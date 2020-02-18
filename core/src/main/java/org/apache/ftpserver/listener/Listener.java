@@ -39,6 +39,9 @@ import org.apache.mina.filter.firewall.Subnet;
  */
 public interface Listener {
 
+    public static final String LIST_FORMAT_TYPE_STANDARD = "STANDARD";
+    public static final String LIST_FORMAT_TYPE_WUFTPD = "WUFTPD";
+
     /**
      * Start the listener, will initiate the listener waiting on the socket. The
      * method should not return until the listener has started accepting socket
@@ -185,4 +188,6 @@ public interface Listener {
 	boolean isSkipNlstFolders();
 
 	int getBacklog();
+
+	String getListFormatType();
 }

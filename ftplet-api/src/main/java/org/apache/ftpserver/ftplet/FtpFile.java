@@ -116,7 +116,7 @@ public interface FtpFile {
      * @param time The last modified time, in milliseconds since the epoch. See {@link File#setLastModified(long)}.
      */
     boolean setLastModified(long time);
-    
+
     /**
      * Get file size.
      * @return The size of the {@link FtpFile} in bytes
@@ -151,22 +151,30 @@ public interface FtpFile {
     List<FtpFile> listFiles();
 
     /**
-     * Create output stream for writing. 
+     * Create output stream for writing.
      * @param offset The number of bytes at where to start writing.
      *      If the file is not random accessible,
      *      any offset other than zero will throw an exception.
      * @return An {@link OutputStream} used to write to the {@link FtpFile}
-     * @throws IOException 
+     * @throws IOException
      */
     OutputStream createOutputStream(long offset) throws IOException;
 
     /**
-     * Create input stream for reading. 
-     * @param offset The number of bytes of where to start reading. 
+     * Create input stream for reading.
+     * @param offset The number of bytes of where to start reading.
      *          If the file is not random accessible,
      *          any offset other than zero will throw an exception.
      * @return An {@link InputStream} used to read the {@link FtpFile}
-     * @throws IOException 
+     * @throws IOException
      */
     InputStream createInputStream(long offset) throws IOException;
+
+    /***
+     * Get the full parent path from the base directory of the FileSystemView.
+     * @return a path where the path separator is '/' (even if the operating system
+     * uses another character as path separator).
+     *
+     */
+    String getParentPath();
 }

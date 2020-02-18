@@ -131,6 +131,11 @@ public class LISTFileFormaterTest extends TestCase {
         public boolean setLastModified(long time) {
             return false;
         }
+
+        public String getParentPath()
+        {
+            return null;
+        }
     }
 
     public void testSingleFile() {

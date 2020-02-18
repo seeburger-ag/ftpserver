@@ -49,25 +49,6 @@ public class DirectoryLister {
         return sb.toString();
     }
 
-    private String traverseFiles(final List<FtpFile> files,
-            final FileFilter filter, final FileFormater formater,
-            boolean matchDirs) {
-        StringBuilder sb = new StringBuilder();
-        for (FtpFile file : files) {
-            if (file == null) {
-                continue;
-            }
-
-            if (filter == null || filter.accept(file)) {
-                if (file.isDirectory() == matchDirs) {
-                    sb.append(formater.format(file));
-                }
-            }
-        }
-
-        return sb.toString();
-    }
-
     public String listFiles(final ListArgument argument,
             final FileSystemView fileSystemView, final FileFormater formater, boolean nlstSkipFolders)
             throws IOException {
@@ -98,21 +79,46 @@ public class DirectoryLister {
         return listFiles(argument, fileSystemView, formater, false);
     }
 
-    /**
-     * Get the file list. Files will be listed in alphabetlical order.
-     */
-    private List<FtpFile> listFiles(FileSystemView fileSystemView, String file) {
+    private String traverseFiles(final List<FtpFile> files, final FileFilter filter, final FileFormater formater, boolean matchDirs)
+    {
+        StringBuilder sb = new StringBuilder();
+        for (FtpFile file : files)
+        {
+            if (file == null)
+            {
+                continue;
+            }
+
+            if (filter == null || filter.accept(file))
+            {
+                if (file.isDirectory() == matchDirs)
+                {
+                    sb.append(formater.format(file));
+                }
+            }
+        }
+
+        return sb.toString();
+    }
+
+    private List<FtpFile> listFiles(FileSystemView fileSystemView, String file)
+    {
         List<FtpFile> files = null;
-        try {
+        try
+        {
             FtpFile virtualFile = fileSystemView.getFile(file);
-            if (virtualFile.isFile()) {
+            if (virtualFile.isFile())
+            {
                 files = new ArrayList<FtpFile>();
                 files.add(virtualFile);
-            } else {
+            }
+            else
+            {
                 files = virtualFile.listFiles();
             }
-        } catch (FtpException ex) {
         }
+        catch (FtpException ex)
+        {}
         return files;
     }
 }

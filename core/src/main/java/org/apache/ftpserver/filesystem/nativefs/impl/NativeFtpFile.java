@@ -38,9 +38,10 @@ import org.apache.ftpserver.usermanager.impl.WriteRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 /**
  * <strong>Internal class, do not use directly.</strong>
- * 
+ *
  * This class wraps native file object.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
@@ -48,6 +49,8 @@ import org.slf4j.LoggerFactory;
 public class NativeFtpFile implements FtpFile {
 
     private final Logger LOG = LoggerFactory.getLogger(NativeFtpFile.class);
+
+    private static final String FILE_SYSTEM_ROOT = "/";
 
     // the file name with respect to the user root.
     // The path separator character will be '/' and
@@ -407,7 +410,7 @@ public class NativeFtpFile implements FtpFile {
     /**
      * Get the physical canonical file name. It works like
      * File.getCanonicalPath().
-     * 
+     *
      * @param rootDir
      *            The root directory.
      * @param currDir
@@ -549,4 +552,24 @@ public class NativeFtpFile implements FtpFile {
 			return 0;
 		}
 	}
+
+    public String getParentPath()
+    {
+        if (FILE_SYSTEM_ROOT.equals(fileName))
+        {
+            return FILE_SYSTEM_ROOT;
+        }
+        else
+        {
+            String fileNameArg = getAbsolutePath();
+            int indexLastSlash = fileNameArg.lastIndexOf('/');
+
+            if (indexLastSlash > 0)
+            {
+                return fileNameArg.substring(0, indexLastSlash);
+            }
+        }
+
+        return FILE_SYSTEM_ROOT;
+    }
 }

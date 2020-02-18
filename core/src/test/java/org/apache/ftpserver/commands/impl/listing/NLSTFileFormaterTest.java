@@ -122,7 +122,13 @@ public class NLSTFileFormaterTest extends TestCase {
 
         public boolean setLastModified(long time) {
             return false;
-            
+
+        }
+
+        public String getParentPath()
+        {
+            // TODO Auto-generated method stub
+            return null;
         }
     }
 

@@ -29,18 +29,19 @@ import org.apache.ftpserver.ftplet.FtpRequest;
 import org.apache.ftpserver.impl.FtpIoSession;
 import org.apache.ftpserver.impl.FtpServerContext;
 import org.apache.ftpserver.impl.LocalizedFtpReply;
+import org.apache.ftpserver.listener.Listener;
 import org.apache.ftpserver.util.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * <strong>Internal class, do not use directly.</strong>
- * 
+ *
  * <code>MDTM &lt;SP&gt; &lt;pathname&gt; &lt;CRLF&gt;</code><br>
- * 
+ *
  * Returns the date and time of when a file was modified.
  *
- * @author <a href="http://mina.apache.org">Apache MINA Project</a> 
+ * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class MDTM extends AbstractCommand {
 
@@ -82,7 +83,9 @@ public class MDTM extends AbstractCommand {
         // now print date
         fileName = file.getAbsolutePath();
         if (file.doesExist()) {
-            String dateStr = DateUtils.getFtpDate(file.getLastModified());
+
+            boolean isFormatTypeWUFTPD = Listener.LIST_FORMAT_TYPE_WUFTPD.equals(session.getListener().getListFormatType());
+            String dateStr = DateUtils.getFtpDate(file.getLastModified(), isFormatTypeWUFTPD ? false : true);
             session.write(LocalizedFtpReply.translate(session, request, context,
                     FtpReply.REPLY_213_FILE_STATUS, "MDTM", dateStr));
         } else {

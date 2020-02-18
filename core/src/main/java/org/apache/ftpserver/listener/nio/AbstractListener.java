@@ -65,6 +65,8 @@ public abstract class AbstractListener implements Listener {
 
     private boolean skipNlstFolders = false;
 
+    private String listFormatType = Listener.LIST_FORMAT_TYPE_STANDARD;
+
     /**
      * @deprecated Use the constructor with IpFilter instead.
      * Constructor for internal use, do not use directly. Instead use {@link ListenerFactory}
@@ -144,6 +146,17 @@ public abstract class AbstractListener implements Listener {
         this.selectorProvider = selectorProvider;
         this.backlog = backlog;
         this.skipNlstFolders = skipNlstFolders;
+    }
+
+    /**
+     * Constructor for internal use, do not use directly. Instead use {@link ListenerFactory}
+     */
+    public AbstractListener(String serverAddress, int port, boolean implicitSsl,
+            SslConfiguration sslConfiguration, DataConnectionConfiguration dataConnectionConfig,
+            int idleTimeout, IpFilter ipFilter, SelectorProvider selectorProvider, int backlog,
+            boolean skipNlstFolders, String listFormatType) {
+       this(serverAddress, port, implicitSsl, sslConfiguration, dataConnectionConfig, idleTimeout, ipFilter, selectorProvider, backlog, skipNlstFolders);
+       this.listFormatType = listFormatType;
     }
 
     /**
@@ -261,5 +274,10 @@ public abstract class AbstractListener implements Listener {
     public boolean isSkipNlstFolders()
     {
         return skipNlstFolders;
+    }
+
+    public String getListFormatType()
+    {
+        return listFormatType;
     }
 }
