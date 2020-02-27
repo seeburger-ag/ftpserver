@@ -25,6 +25,7 @@ import java.util.Map.Entry;
 
 import org.apache.ftpserver.command.impl.ABOR;
 import org.apache.ftpserver.command.impl.ACCT;
+import org.apache.ftpserver.command.impl.ALLO;
 import org.apache.ftpserver.command.impl.APPE;
 import org.apache.ftpserver.command.impl.AUTH;
 import org.apache.ftpserver.command.impl.CDUP;
@@ -73,7 +74,7 @@ import org.apache.ftpserver.command.impl.USER;
 /**
  * Factory for {@link CommandFactory} instances
  *
- * @author <a href="http://mina.apache.org">Apache MINA Project</a> 
+ * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class CommandFactoryFactory {
 
@@ -81,6 +82,7 @@ public class CommandFactoryFactory {
 
     static {
         // first populate the default command list
+        DEFAULT_COMMAND_MAP.put("ALLO", new ALLO());
         DEFAULT_COMMAND_MAP.put("ABOR", new ABOR());
         DEFAULT_COMMAND_MAP.put("ACCT", new ACCT());
         DEFAULT_COMMAND_MAP.put("APPE", new APPE());
@@ -138,20 +140,20 @@ public class CommandFactoryFactory {
      * @return The {@link CommandFactory}
      */
     public CommandFactory createCommandFactory() {
-        
+
         Map<String, Command> mergedCommands = new HashMap<String, Command>();
         if(useDefaultCommands) {
             mergedCommands.putAll(DEFAULT_COMMAND_MAP);
         }
-        
+
         mergedCommands.putAll(commandMap);
-        
+
         return new DefaultCommandFactory(mergedCommands);
     }
-    
+
     /**
      * Are default commands used?
-     * 
+     *
      * @return true if default commands are used
      */
     public boolean isUseDefaultCommands() {
@@ -160,7 +162,7 @@ public class CommandFactoryFactory {
 
     /**
      * Sets whether the default commands will be used.
-     * 
+     *
      * @param useDefaultCommands
      *            true if default commands should be used
      */
@@ -170,7 +172,7 @@ public class CommandFactoryFactory {
 
     /**
      * Get the installed commands
-     * 
+     *
      * @return The installed commands
      */
     public Map<String, Command> getCommandMap() {
@@ -189,13 +191,13 @@ public class CommandFactoryFactory {
         if(command == null) {
             throw new NullPointerException("command can not be null");
         }
-        
+
         commandMap.put(commandName.toUpperCase(), command);
     }
-    
+
     /**
      * Set commands to add or override to the default commands
-     * 
+     *
      * @param commandMap
      *            The map of commands, the key will be used to map to requests.
      */
