@@ -127,9 +127,9 @@
   </contributors>
 
   <scm>
-    <connection>scm:git:git@github.com:seeburger-ag/ftpserver.git</connection>
-    <developerConnection>scm:git:git@github.com:seeburger-ag/ftpserver.git</developerConnection>
-    <url>scm:git:git@github.com:seeburger-ag/ftpserver.git</url>
+    <url>https://git.seeburger.de/summary/dt%2Fapache-ftpserver.git</url>
+    <connection>scm:git:ssh://git.seeburger.de:29418/dt/apache-ftpserver</connection>
+    <developerConnection>scm:git:ssh://git.seeburger.de:29418/dt/apache-ftpserver</developerConnection>
   </scm>
 
   <dependencyManagement>
