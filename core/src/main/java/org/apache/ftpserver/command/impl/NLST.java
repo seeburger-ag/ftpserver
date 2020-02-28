@@ -115,52 +115,6 @@ public class NLST extends AbstractCommand {
                 }
             }
 
-            String listResult = "";
-
-            if (isFormatTypeWUFTPD)
-            {
-                try
-                {
-                    ListArgument parsedArg = ListArgumentParser.parse(request.getArgument());
-
-                    listResult = directoryListerWUFTPD.listFiles(parsedArg, session.getFileSystemView(), DirectoryListerWUFTPD.COMMAND_NLST, file);
-
-                    if (listResult == null || listResult.trim().isEmpty())
-                    {
-                        String filePathMsg = createWUFTPDStringNotFound(file.getAbsolutePath(), parsedArg.getPattern(), file.isDirectory());
-
-                        session.write(LocalizedFtpReply.translate(session, request, context,
-                                      FtpReply.REPLY_550_REQUESTED_ACTION_NOT_TAKEN,
-                                      "NLST.missing", filePathMsg));
-                        return;
-                    }
-                }
-                catch (SocketException ex)
-                {
-                    LOG.debug("Socket exception during data transfer", ex);
-                    session.write(LocalizedFtpReply.translate(session, request, context,
-                                  FtpReply.REPLY_426_CONNECTION_CLOSED_TRANSFER_ABORTED,
-                                  "NLST", null));
-                    return;
-                }
-                catch (IOException ex)
-                {
-                    LOG.debug("IOException during data transfer", ex);
-                    session.write(LocalizedFtpReply.translate(session, request, context,
-                                  FtpReply.REPLY_551_REQUESTED_ACTION_ABORTED_PAGE_TYPE_UNKNOWN,
-                                  "NLST", null));
-                    return;
-                }
-                catch (IllegalArgumentException e)
-                {
-                    LOG.debug("Illegal listing syntax: " + request.getArgument(), e);
-                    session.write(LocalizedFtpReply.translate(session, request, context,
-                                  FtpReply.REPLY_501_SYNTAX_ERROR_IN_PARAMETERS_OR_ARGUMENTS,
-                                  "LIST", null));
-                    return;
-                }
-            }
-
             // get data connection
             session.write(LocalizedFtpReply.translate(session, request, context,
                     FtpReply.REPLY_150_FILE_STATUS_OKAY, "NLST", null));
@@ -193,6 +147,7 @@ public class NLST extends AbstractCommand {
 
                 if (isFormatTypeWUFTPD)
                 {
+                    String listResult = directoryListerWUFTPD.listFiles(parsedArg, session.getFileSystemView(), DirectoryListerWUFTPD.COMMAND_NLST, file);
                     dataConnection.transferToClient(session.getFtpletSession(), listResult);
                 }
                 else
@@ -241,37 +196,5 @@ public class NLST extends AbstractCommand {
         } finally {
             session.getDataConnection().closeDataConnection();
        }
-
             }
-
-    private String createWUFTPDStringNotFound(String filePathArg, String pattern, boolean isDirectory)
-    {
-        String filePath = filePathArg;
-        try
-        {
-            if (pattern != null || isDirectory)
-            {
-                if (!filePath.endsWith("/"))
-                {
-                    filePath += "/";
-                }
-
-                if (pattern != null)
-                {
-                    filePath += pattern;
-                }
-                else
-                {
-                    filePath += "*";
-                }
-            }
-
-            return filePath;
-        }
-        catch(Exception ex)
-        {
-            LOG.debug(ex.getMessage(), ex);
-            return "";
-        }
-    }
 }

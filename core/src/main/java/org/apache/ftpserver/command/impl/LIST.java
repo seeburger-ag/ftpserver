@@ -134,8 +134,13 @@ public class LIST extends AbstractCommand {
             try {
                     if (isFormatTypeWUFTPD)
                     {
-                        String listResult = directoryListerWUFTPD.listFiles(parsedArg, session.getFileSystemView(),
+                        String listResult = "";
+
+                        if (file.doesExist())
+                        {
+                            listResult = directoryListerWUFTPD.listFiles(parsedArg, session.getFileSystemView(),
                                                                             DirectoryListerWUFTPD.COMMAND_LIST, file);
+                        }
 
                         dataConnection.transferToClient(session.getFtpletSession(), listResult);
                     }
