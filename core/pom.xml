@@ -17,13 +17,13 @@
 	<parent>
 		<artifactId>ftpserver-parent</artifactId>
 		<groupId>com.seeburger.apache.ftpserver</groupId>
-		<version>1.0.6.SEE33-SNAPSHOT</version>
+		<version>1.0.6.SEE33</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.seeburger.apache.ftpserver</groupId>
 	<artifactId>ftpserver-core</artifactId>
 	<name>Apache FtpServer Core</name>
-	<version>1.0.6.SEE33-SNAPSHOT</version>
+	<version>1.0.6.SEE33</version>
 	<packaging>bundle</packaging>
 	<scm>
 		<connection>
@@ -33,7 +33,7 @@
 			scm:svn:https://svn.apache.org/repos/asf/mina/ftpserver/trunk/core
 		</developerConnection>
 		<url> http://svn.apache.org/viewvc/mina/ftpserver/trunk/core</url>
-	  <tag>HEAD</tag>
+	  <tag>ftpserver-parent-1.0.6.SEE33</tag>
   </scm>
 	<build>
 		<resources>
