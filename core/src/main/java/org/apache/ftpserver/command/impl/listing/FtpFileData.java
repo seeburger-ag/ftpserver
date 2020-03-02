@@ -36,8 +36,8 @@ public class FtpFileData
     {
         permissions = LISTFileFormaterUtils.getPermission(file);
         linkCount = String.valueOf(file.getLinkCount());
-        ownerName = file.getOwnerName();
-        groupName = file.getGroupName();
+        ownerName = file.getOwnerName() != null ? file.getOwnerName() : "";
+        groupName = file.getGroupName() != null ? file.getGroupName() : "";
         length = LISTFileFormaterUtils.getLength(file);
         lastModified = LISTFileFormaterUtils.getLastModified(file);
         lastModifiedUTC = file.getLastModified();

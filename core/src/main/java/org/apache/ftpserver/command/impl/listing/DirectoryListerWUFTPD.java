@@ -147,7 +147,7 @@ public class DirectoryListerWUFTPD {
 
                     try
                     {
-                        parentFile = DEFAULT_ROOT.equals(listingFile.getParentPath()) ? listingFile : fileSystemView.getFile(listingFile.getParentPath());
+                        parentFile = DEFAULT_ROOT.equals(listingFile.getAbsolutePath()) ? listingFile : fileSystemView.getFile(listingFile.getParentPath());
                     }
                     catch(Exception ex)
                     {
@@ -161,10 +161,15 @@ public class DirectoryListerWUFTPD {
                 }
             }
 
+            boolean isEmpty = result.isEmpty() && isNullOrEmpty(files);
             String dummyLine = "";
-            if (isDirectory && isNullOrEmpty(argument.getPattern()) && formater.allowAddTotalLine())
+
+            if (formater.allowAddTotalLine() &&
+                isDirectory &&
+                (isEmpty || !result.isEmpty()) &&
+                isNullOrEmpty(argument.getPattern()))
             {
-                dummyLine = createDummyLine(files == null || files.isEmpty());
+                dummyLine = createDummyLine(isEmpty);
             }
 
             StringBuffer sb = new StringBuffer();
@@ -186,9 +191,9 @@ public class DirectoryListerWUFTPD {
         return (value == null || value.trim().isEmpty());
     }
 
-    private String createDummyLine(boolean isEmptyFolder)
+    private String createDummyLine(boolean emptyDir)
     {
-        if (isEmptyFolder)
+        if (emptyDir)
         {
             return "total 0";
         }
@@ -275,5 +280,10 @@ public class DirectoryListerWUFTPD {
         catch (FtpException ex)
         {}
         return files;
+    }
+
+    private boolean isNullOrEmpty(List data)
+    {
+        return (data == null || data.size() == 0);
     }
 }
