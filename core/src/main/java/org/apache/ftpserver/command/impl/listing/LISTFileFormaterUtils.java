@@ -47,6 +47,10 @@ public class LISTFileFormaterUtils
         return DateUtils.getUnixDate(file.getLastModified());
     }
 
+    protected static String getLastModifiedWUFTPD(FtpFile file) {
+        return DateUtils.getUnixDate(file.getLastModified(), true);
+    }
+
     protected long getLastModifiedUTC(FtpFile file) {
         return file.getLastModified();
     }

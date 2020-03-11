@@ -88,20 +88,22 @@ public class LISTFileFormaterWUFTPD implements FileFormaterWUFTPD
     private String formatByColumnSize(boolean showOwnerColumn, FtpFileData data, ListColumnsMaxSize columnsMaxSize)
     {
         return format(String.format(createFormatStringLeftAlign(columnsMaxSize.fileNameMaxSize), data.getFileName()),
-                      data.getPermissions(), data.getLinkCount(),
+                      String.format(createFormatStringLeftAlign(columnsMaxSize.permissionsMaxSize), String.valueOf(data.getPermissions())),
+                      String.format(createFormatStringRightAlign(columnsMaxSize.linkCountMaxSize), data.getLinkCount()),
                       String.format(createFormatStringLeftAlign(columnsMaxSize.ownerNameMaxSize), data.getOwnerName()),
                       String.format(createFormatStringLeftAlign(columnsMaxSize.groupNameMaxSize), data.getGroupName()),
-                      data.getLength(), data.getLastModified());
+                      String.format(createFormatStringRightAlign(columnsMaxSize.lengthMaxSize), data.getLength()),
+                      String.format(createFormatStringLeftAlign(columnsMaxSize.lastModifiledMaxSize), data.getLastModified()));
     }
 
     public String format(FtpFileData data)
     {
-        return format(data.getFileName(), data.getPermissions(),
-                      data.getLinkCount(),data.getOwnerName(),
-                      data.getGroupName(), data.getLength(), data.getLastModified());
+        List<FtpFileData> files = new ArrayList<FtpFileData>();
+        files.add(data);
+        return formatListAlignColumns(files, null);
     }
 
-    private String format(String fileName, char[] permissions, String linkCount, String ownerName, String groupName, String legth, String lastModified)
+    private String format(String fileName, String permissions, String linkCount, String ownerName, String groupName, String legth, String lastModified)
     {
         StringBuilder sb = new StringBuilder();
 
@@ -113,15 +115,17 @@ public class LISTFileFormaterWUFTPD implements FileFormaterWUFTPD
         else
         {
             sb.append(permissions);
+
             sb.append(DELIM);
-            sb.append(DELIM);
-            sb.append(DELIM);
+
             sb.append(linkCount);
             sb.append(DELIM);
 
             if (showOwnerColumn)
             {
                 sb.append(ownerName);
+                sb.append(DELIM);
+                sb.append(DELIM);
                 sb.append(DELIM);
             }
 
@@ -175,7 +179,7 @@ public class LISTFileFormaterWUFTPD implements FileFormaterWUFTPD
             }
         }
 
-        if (SORT_TYPE_BY_LASTMODIFIED.equals(sortType))
+        if (sortType != null && SORT_TYPE_BY_LASTMODIFIED.equals(sortType))
         {
             sort(fillDataArray, sortType);
         }
@@ -215,6 +219,21 @@ public class LISTFileFormaterWUFTPD implements FileFormaterWUFTPD
                 {
                     columnSize.lengthMaxSize = file.getLength().length();
                 }
+
+                if (compare(file.getLinkCount(), columnSize.linkCountMaxSize))
+                {
+                    columnSize.linkCountMaxSize = file.getLinkCount().length();
+                }
+
+                if (compare(file.getPermissions(), columnSize.permissionsMaxSize))
+                {
+                    columnSize.permissionsMaxSize = file.getPermissions().length();
+                }
+
+                if (compare(file.getLastModified(), columnSize.lastModifiledMaxSize))
+                {
+                    columnSize.lastModifiledMaxSize = file.getLastModified().length();
+                }
             }
        }
     }
@@ -236,10 +255,14 @@ public class LISTFileFormaterWUFTPD implements FileFormaterWUFTPD
 
     class ListColumnsMaxSize
     {
-        int ownerNameMaxSize;
-        int groupNameMaxSize;
-        int lengthMaxSize;
-        int fileNameMaxSize;
+        //initial max size of the columns - will be enlarged in case of larger data for this columns
+        int ownerNameMaxSize = 1;
+        int groupNameMaxSize = 1;
+        int lengthMaxSize = 10;
+        int fileNameMaxSize = 1;
+        int linkCountMaxSize = 4;
+        int lastModifiledMaxSize = 1;
+        int permissionsMaxSize = 1;
     }
 
     private void sort(List<FtpFileData> dataArray, Integer sortType)
@@ -374,7 +397,22 @@ public class LISTFileFormaterWUFTPD implements FileFormaterWUFTPD
 
     private static String createFormatStringLeftAlign(int size)
     {
-        return "%-" + size + "." + size + "s";
+        if (size > 0)
+        {
+            return "%-" + size + "." + size + "s";
+        }
+
+        return "%s";
+    }
+
+    private static String createFormatStringRightAlign(int size)
+    {
+        if (size > 0)
+        {
+            return "%" + size + "." + size + "s";
+        }
+
+        return "%s";
     }
 
     private static boolean hasFileNameBiggerThanSize(List<FtpFileData> fileNames, Integer size)

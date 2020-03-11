@@ -57,10 +57,14 @@ public class DateUtils {
 
     };
 
+    public final static String getUnixDate(long millis) {
+        return getUnixDate(millis, false);
+    }
+
     /**
      * Get unix style date string.
      */
-    public final static String getUnixDate(long millis) {
+    public final static String getUnixDate(long millis, boolean isWUFTPD) {
         if (millis < 0) {
             return "------------";
         }
@@ -87,7 +91,11 @@ public class DateUtils {
 
             // year
             int year = cal.get(Calendar.YEAR);
-            sb.append(' ');
+
+            if (!isWUFTPD)
+            {
+                sb.append(' ');
+            }
             sb.append(year);
         } else {
 

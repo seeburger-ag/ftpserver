@@ -23,7 +23,7 @@ import org.apache.ftpserver.ftplet.FtpFile;
 
 public class FtpFileData
 {
-    private char[] permissions;
+    private String permissions;
     private String linkCount;
     private String ownerName;
     private String groupName;
@@ -34,18 +34,26 @@ public class FtpFileData
 
     public FtpFileData(FtpFile file, String nameConstant, boolean flagFileName)
     {
-        permissions = LISTFileFormaterUtils.getPermission(file);
+        permissions = String.valueOf(LISTFileFormaterUtils.getPermission(file));
         linkCount = String.valueOf(file.getLinkCount());
         ownerName = file.getOwnerName() != null ? file.getOwnerName() : "";
         groupName = file.getGroupName() != null ? file.getGroupName() : "";
-        length = LISTFileFormaterUtils.getLength(file);
-        lastModified = LISTFileFormaterUtils.getLastModified(file);
+        length = String.valueOf(file.getSize());
+        lastModified = LISTFileFormaterUtils.getLastModifiedWUFTPD(file);
         lastModifiedUTC = file.getLastModified();
-        fileName = nameConstant == null ? file.getName() : nameConstant;
 
-        if (flagFileName)
+        if (file.getName() != null)
         {
-            fileName = fileName + "/";
+            fileName = nameConstant == null ? file.getName() : nameConstant;
+
+            if (flagFileName)
+            {
+                fileName = fileName + "/";
+            }
+        }
+        else
+        {
+            fileName = "";
         }
     }
 
@@ -59,7 +67,7 @@ public class FtpFileData
         return fileName;
     }
 
-    public char[] getPermissions()
+    public String getPermissions()
     {
         return permissions;
     }
