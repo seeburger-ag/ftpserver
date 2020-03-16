@@ -85,6 +85,14 @@ public class MDTM extends AbstractCommand {
         if (file.doesExist()) {
 
             boolean isFormatTypeWUFTPD = Listener.LIST_FORMAT_TYPE_WUFTPD.equals(session.getListener().getListFormatType());
+
+            if (isFormatTypeWUFTPD && file.isDirectory())
+            {
+                session.write(LocalizedFtpReply.translate(session, request, context,
+                          FtpReply.REPLY_550_REQUESTED_ACTION_NOT_TAKEN, "MDTM.notafile",
+                          fileName));
+                return;
+            }
             String dateStr = DateUtils.getFtpDate(file.getLastModified(), isFormatTypeWUFTPD ? false : true);
             session.write(LocalizedFtpReply.translate(session, request, context,
                     FtpReply.REPLY_213_FILE_STATUS, "MDTM", dateStr));
