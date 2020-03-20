@@ -32,7 +32,7 @@ public class FtpFileData
     private long lastModifiedUTC;
     private String fileName;
 
-    public FtpFileData(FtpFile file, String nameConstant, boolean flagFileName)
+    public FtpFileData(FtpFile file, String nameConstant, boolean flagFileName, String relativePath)
     {
         permissions = String.valueOf(LISTFileFormaterUtils.getPermission(file));
         linkCount = String.valueOf(file.getLinkCount());
@@ -45,6 +45,18 @@ public class FtpFileData
         if (file.getName() != null)
         {
             fileName = nameConstant == null ? file.getName() : nameConstant;
+
+            if (relativePath != null && !relativePath.isEmpty())
+            {
+                if (relativePath.endsWith("/"))
+                {
+                    fileName = relativePath + fileName;
+                }
+                else
+                {
+                    fileName = relativePath + "/" + fileName;
+                }
+            }
 
             if (flagFileName)
             {
@@ -59,7 +71,12 @@ public class FtpFileData
 
     public FtpFileData(FtpFile file, boolean flagFileNames)
     {
-        this(file, null, flagFileNames);
+        this(file, null, flagFileNames, null);
+    }
+
+    public FtpFileData(FtpFile file, boolean flagFileNames, String relativePath)
+    {
+        this(file, null, flagFileNames, relativePath);
     }
 
     public String getFileName()

@@ -22,7 +22,7 @@ import java.util.StringTokenizer;
 
 /**
  * <strong>Internal class, do not use directly.</strong>
- * 
+ *
  * Parses a list argument (e.g. for LIST or NLST) into a {@link ListArgument}
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
@@ -31,7 +31,7 @@ public class ListArgumentParser {
 
     /**
      * Parse the argument
-     * 
+     *
      * @param argument
      *            The argument string
      * @return The parsed argument
@@ -44,6 +44,8 @@ public class ListArgumentParser {
         String pattern = "*";
 
         // find options and file name (may have regular expression)
+        boolean hasOriginalRequestWildcard = false;
+
         if (argument != null) {
             argument = argument.trim();
             StringBuilder optionsSb = new StringBuilder(4);
@@ -98,9 +100,12 @@ public class ListArgumentParser {
 
         if ("*".equals(pattern) || "".equals(pattern)) {
             pattern = null;
+            hasOriginalRequestWildcard = argument != null && argument.contains("*");
         }
 
-        return new ListArgument(file, pattern, options.toCharArray());
+        ListArgument listArg = new ListArgument(file, pattern, options.toCharArray());
+        listArg.setIsOriginalRequestContainsWildcard(hasOriginalRequestWildcard);
+        return listArg;
     }
 
     private static boolean containsPattern(String file) {

@@ -26,6 +26,8 @@ import java.util.List;
 import org.apache.ftpserver.ftplet.FileSystemView;
 import org.apache.ftpserver.ftplet.FtpException;
 import org.apache.ftpserver.ftplet.FtpFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <strong>Internal class, do not use directly.</strong>
@@ -36,6 +38,8 @@ import org.apache.ftpserver.ftplet.FtpFile;
  */
 public class DirectoryListerWUFTPD {
 
+    private final Logger LOG = LoggerFactory.getLogger(DirectoryListerWUFTPD.class);
+
     public static final String COMMAND_LIST = "LIST";
     public static final String COMMAND_NLST = "NLST";
 
@@ -43,23 +47,7 @@ public class DirectoryListerWUFTPD {
 
     private static final String DEFAULT_ROOT = "/";
 
-    private String traverseFiles(final List<FtpFile> files, boolean skipFolders, final FileFilter filter, final FileFormaterWUFTPD formater, FtpFile current, FtpFile parent, Integer sortType)
-    {
-        StringBuilder sb = new StringBuilder();
-
-        if (skipFolders)
-        {
-            sb.append(traverseFiles(files, filter, formater, false, current, parent, sortType));
-        }
-        else
-        {
-            sb.append(traverseFiles(files, filter, formater, current, parent, sortType));
-        }
-
-        return sb.toString();
-    }
-
-    private FileFormaterWUFTPD createFormatter(final ListArgument argument, final String command)
+    private FileFormaterWUFTPD createFormatter(final ListArgument argument, final String command, boolean addRelativePath)
     {
         Integer formatType = null;
 
@@ -71,6 +59,7 @@ public class DirectoryListerWUFTPD {
                             (optionsString.lastIndexOf("C") > optionsString.lastIndexOf("l")));
 
         boolean addTotalLine = false;
+
         if (formatCF)
         {
             formatType = LISTFileFormaterWUFTPD.FORMAT_TYPE_CF;
@@ -94,20 +83,97 @@ public class DirectoryListerWUFTPD {
                                                                      argument.hasOption('F') && !argument.hasOption('f'));
 
         formater.setAddTotalLine(addTotalLine);
+        formater.setAddRelativePath(addRelativePath);
 
         return formater;
     }
 
-    public String listFiles(final ListArgument argument,
-            final FileSystemView fileSystemView, final String command, FtpFile listingFile) throws IOException
+    /***
+     *
+     * @param argument
+     * @param command
+     * @param fileSystemView
+     * @param listingFile
+     * @return
+     * @throws FtpException
+     */
+    private String calculateRelativePath(final ListArgument argument, final String command, final FileSystemView fileSystemView, final FtpFile listingFile) throws FtpException
     {
+        FtpFile workingDir = null;
+
+        String relativePath = "";
+
+        if (argument.getFile() != null)
+        {
+            workingDir = fileSystemView.getWorkingDirectory();
+
+            String workingDirAbsolutePath  = workingDir != null  ? workingDir.getAbsolutePath() : "";
+            String listingFileAbsolutePath = listingFile != null ? listingFile.getAbsolutePath() : "";
+
+            boolean isListingWorkingDir = workingDirAbsolutePath.equals(listingFileAbsolutePath);
+
+            boolean hasWildcard = argument.getPattern() != null &&
+                                 (argument.getPattern().contains("*") || argument.getPattern().contains("?"));
+
+            boolean argFileContainsPath = argument.getFile().contains("/") && !argument.getFile().startsWith("./");
+
+            boolean addRelativePathNLST = (!isListingWorkingDir || argFileContainsPath) &&
+                                          (command.equals(COMMAND_NLST) &&
+                                          isNullOrEmpty(argument.getOptions()));
+
+            boolean addRelativePathLIST = (!isListingWorkingDir || argFileContainsPath) &&
+                                          command.equals(COMMAND_LIST) &&
+                                          (hasWildcard || argument.isOriginalRequestContainsWildcard());
+
+            if (addRelativePathLIST || addRelativePathNLST)
+            {
+                if (listingFile.isDirectory())
+                {
+                    relativePath = listingFileAbsolutePath;
+                }
+                else
+                {
+                    relativePath = listingFile.getParentPath();
+                }
+
+                if (!argument.getFile().startsWith("/"))
+                {
+                    if (relativePath.startsWith(workingDirAbsolutePath))
+                    {
+                        relativePath = relativePath.substring(workingDirAbsolutePath.length());
+                    }
+
+                    if (relativePath.startsWith("/"))
+                    {
+                        relativePath = relativePath.substring(1);
+                    }
+                }
+            }
+        }
+
+        return relativePath;
+    }
+
+    public String listFiles(final ListArgument argument,
+            final FileSystemView fileSystemView, final String command, final FtpFile listingFile) throws IOException
+    {
+        String relativePath = "";
+
+        try
+        {
+            relativePath = calculateRelativePath(argument, command, fileSystemView, listingFile);
+        }
+        catch(Exception ex)
+        {
+            LOG.debug("Error when calculating relative path");
+        }
+
+        FileFormaterWUFTPD formater = createFormatter(argument, command, (relativePath != null && !relativePath.isEmpty()));
+
         boolean isDirectory = listingFile != null && listingFile.isDirectory();
-
-        FileFormaterWUFTPD formater = createFormatter(argument, command);
-
         if (isDirectory && argument.hasOption('d') && !argument.hasOptions('C') && !argument.hasOption('f'))
         {
-            return formater.format(new FtpFileData(listingFile, ".", formater.isFlagFileNames()));
+            return formater.format(new FtpFileData(listingFile, ".", formater.isFlagFileNames(), relativePath));
         }
         else
         {
@@ -117,14 +183,15 @@ public class DirectoryListerWUFTPD {
             if (files != null)
             {
                 FileFilter filter = null;
-                if (!argument.hasOption('a')) {
+                if (!argument.hasOption('a') && !command.equals(COMMAND_LIST)) {
                     filter = new VisibleFileFilter();
                 }
+
                 if (argument.getPattern() != null) {
                     filter = new RegexFileFilter(argument.getPattern(), filter);
                 }
 
-                boolean skipFolders = command.equals(COMMAND_NLST) && (argument.getOptions() == null || argument.getOptions().length == 0);
+                boolean skipFolders = command.equals(COMMAND_NLST) && isNullOrEmpty(argument.getOptions());
 
                 Integer sortType = null;
 
@@ -153,11 +220,11 @@ public class DirectoryListerWUFTPD {
                     {
                     }
 
-                    result = traverseFiles(files, skipFolders, filter, formater, listingFile, parentFile, sortType);
+                    result = traverseFiles(files, filter, formater, skipFolders, listingFile, parentFile, sortType, relativePath);
                 }
                 else
                 {
-                    result = traverseFiles(files, skipFolders, filter, formater, null, null, sortType);
+                    result = traverseFiles(files, filter, formater, skipFolders, null, null, sortType, relativePath);
                 }
             }
 
@@ -203,17 +270,7 @@ public class DirectoryListerWUFTPD {
         }
     }
 
-    private String traverseFiles(final List<FtpFile> files, final FileFilter filter, final FileFormaterWUFTPD formater, FtpFile current, FtpFile parent, Integer sortType)
-    {
-        return traverseFiles(files, filter, formater, false, current, parent, false, sortType);
-    }
-
-    private String traverseFiles(final List<FtpFile> files, final FileFilter filter, final FileFormaterWUFTPD formater, boolean matchDirs, FtpFile current, FtpFile parent, Integer sortType)
-    {
-        return traverseFiles(files, filter, formater, matchDirs, current, parent, true, sortType);
-    }
-
-    private String traverseFiles(final List<FtpFile> files, final FileFilter filter, final FileFormaterWUFTPD formater, boolean matchDirs, FtpFile current, FtpFile parent, boolean checkIsDir, Integer sortType)
+    private String traverseFiles(final List<FtpFile> files, final FileFilter filter, final FileFormaterWUFTPD formater, boolean skipFolders, FtpFile current, FtpFile parent, Integer sortType, String relativePath)
     {
         List<FtpFileData> ftpFiles = new ArrayList<FtpFileData>();
 
@@ -228,21 +285,22 @@ public class DirectoryListerWUFTPD {
 
             if (filter == null || filter.accept(file))
             {
-                if (!checkIsDir || file.isDirectory() == matchDirs)
+                boolean isDirectory = file.isDirectory();
+                if (!isDirectory  || (isDirectory && !skipFolders))
                 {
-                    ftpFiles.add(new FtpFileData(file, flagFileName));
+                    ftpFiles.add(new FtpFileData(file, flagFileName, relativePath));
                 }
             }
         }
 
         if (parent != null)
         {
-            ftpFiles.add(0, new FtpFileData(parent, "..", formater.isFlagFileNames()));
+            ftpFiles.add(0, new FtpFileData(parent, "..", formater.isFlagFileNames(), ""));
         }
 
         if (current != null)
         {
-            ftpFiles.add(0, new FtpFileData(current, ".", formater.isFlagFileNames()));
+            ftpFiles.add(0, new FtpFileData(current, ".", formater.isFlagFileNames(), ""));
         }
 
         return formater.format(ftpFiles, sortType);
@@ -285,5 +343,10 @@ public class DirectoryListerWUFTPD {
     private boolean isNullOrEmpty(List data)
     {
         return (data == null || data.size() == 0);
+    }
+
+    private boolean isNullOrEmpty(char[] argument)
+    {
+        return (argument == null || argument.length == 0);
     }
 }

@@ -63,4 +63,10 @@ public interface FileFormaterWUFTPD
      * @return
      */
     boolean allowAddTotalLine();
+
+    /***
+     * When true, name contains path relative to the working directory
+     * @return
+     */
+    boolean isAddPath();
 }

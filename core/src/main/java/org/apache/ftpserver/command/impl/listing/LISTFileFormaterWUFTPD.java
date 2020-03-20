@@ -34,6 +34,7 @@ public class LISTFileFormaterWUFTPD implements FileFormaterWUFTPD
     private boolean applyFormatingCF = false;
     private boolean flagFileNames = false;
     private boolean addTotalLine = false;
+    private boolean addRelativePath = false;
 
     protected static final Integer FORMAT_TYPE_LIST_HIDE_OWNER = 11;
     protected static final Integer FORMAT_TYPE_SHOW_ONLY_NAME = 12;
@@ -87,7 +88,7 @@ public class LISTFileFormaterWUFTPD implements FileFormaterWUFTPD
      */
     private String formatByColumnSize(boolean showOwnerColumn, FtpFileData data, ListColumnsMaxSize columnsMaxSize)
     {
-        return format(String.format(createFormatStringLeftAlign(columnsMaxSize.fileNameMaxSize), data.getFileName()),
+        return format(data.getFileName(),
                       String.format(createFormatStringLeftAlign(columnsMaxSize.permissionsMaxSize), String.valueOf(data.getPermissions())),
                       String.format(createFormatStringRightAlign(columnsMaxSize.linkCountMaxSize), data.getLinkCount()),
                       String.format(createFormatStringLeftAlign(columnsMaxSize.ownerNameMaxSize), data.getOwnerName()),
@@ -124,8 +125,6 @@ public class LISTFileFormaterWUFTPD implements FileFormaterWUFTPD
             if (showOwnerColumn)
             {
                 sb.append(ownerName);
-                sb.append(DELIM);
-                sb.append(DELIM);
                 sb.append(DELIM);
             }
 
@@ -200,30 +199,8 @@ public class LISTFileFormaterWUFTPD implements FileFormaterWUFTPD
 
             if (columnSize != null)
             {
-                if (compare(file.getFileName(), columnSize.fileNameMaxSize))
-                {
-                    columnSize.fileNameMaxSize = file.getFileName().length();
-                }
-
-                if (compare(file.getOwnerName(), columnSize.ownerNameMaxSize))
-                {
-                    columnSize.ownerNameMaxSize = file.getOwnerName().length();
-                }
-
-                if (compare(file.getGroupName(), columnSize.groupNameMaxSize))
-                {
-                    columnSize.groupNameMaxSize = file.getGroupName().length();
-                }
-
-                if (compare(file.getLength(), columnSize.lengthMaxSize))
-                {
-                    columnSize.lengthMaxSize = file.getLength().length();
-                }
-
-                if (compare(file.getLinkCount(), columnSize.linkCountMaxSize))
-                {
-                    columnSize.linkCountMaxSize = file.getLinkCount().length();
-                }
+                //file name is the last column, left aligned, max size not calculated
+                //columns owner, group, file size and link count are with fixed max size
 
                 if (compare(file.getPermissions(), columnSize.permissionsMaxSize))
                 {
@@ -255,12 +232,12 @@ public class LISTFileFormaterWUFTPD implements FileFormaterWUFTPD
 
     class ListColumnsMaxSize
     {
-        //initial max size of the columns - will be enlarged in case of larger data for this columns
-        int ownerNameMaxSize = 1;
-        int groupNameMaxSize = 1;
-        int lengthMaxSize = 10;
-        int fileNameMaxSize = 1;
-        int linkCountMaxSize = 4;
+        final int ownerNameMaxSize = 8;
+        final int groupNameMaxSize = 8;
+        final int lengthMaxSize = 10;
+        final int linkCountMaxSize = 4;
+
+        //int fileNameMaxSize = 1;
         int lastModifiledMaxSize = 1;
         int permissionsMaxSize = 1;
     }
@@ -440,5 +417,15 @@ public class LISTFileFormaterWUFTPD implements FileFormaterWUFTPD
     public void setAddTotalLine(boolean addTotalLine)
     {
         this.addTotalLine = addTotalLine;
+    }
+
+    public boolean isAddPath()
+    {
+        return addRelativePath;
+    }
+
+    public void setAddRelativePath(boolean addRelativePath)
+    {
+        this.addRelativePath = addRelativePath;
     }
 }

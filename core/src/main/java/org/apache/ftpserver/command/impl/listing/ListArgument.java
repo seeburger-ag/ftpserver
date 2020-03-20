@@ -33,6 +33,8 @@ public class ListArgument {
 
     private char[] options;
 
+    private boolean isOriginalRequestContainsWildcard = false;
+
     /**
      * @param file
      *            The file path including the directory
@@ -105,6 +107,16 @@ public class ListArgument {
      */
     public String getFile() {
         return file;
+    }
+
+    public boolean isOriginalRequestContainsWildcard()
+    {
+        return isOriginalRequestContainsWildcard;
+    }
+
+    public void setIsOriginalRequestContainsWildcard(boolean hasOriginalRequestWildcard)
+    {
+        this.isOriginalRequestContainsWildcard = hasOriginalRequestWildcard;
     }
 
 }
