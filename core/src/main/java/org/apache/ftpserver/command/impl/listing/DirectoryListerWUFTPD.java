@@ -274,11 +274,24 @@ public class DirectoryListerWUFTPD {
     {
         List<FtpFileData> ftpFiles = new ArrayList<FtpFileData>();
 
+        boolean existsCurrent = false;
+        boolean existsParent  = false;
+
         for (FtpFile file : files)
         {
             if (file == null)
             {
                 continue;
+            }
+
+            if (".".equals(file.getName()))
+            {
+                existsCurrent = true;
+            }
+
+            if ("..".equals(file.getName()))
+            {
+                existsParent = true;
             }
 
             boolean flagFileName = file.isDirectory() && formater.isFlagFileNames();
@@ -293,12 +306,12 @@ public class DirectoryListerWUFTPD {
             }
         }
 
-        if (parent != null)
+        if (!existsParent && parent != null)
         {
             ftpFiles.add(0, new FtpFileData(parent, "..", formater.isFlagFileNames(), ""));
         }
 
-        if (current != null)
+        if (!existsCurrent && current != null)
         {
             ftpFiles.add(0, new FtpFileData(current, ".", formater.isFlagFileNames(), ""));
         }
