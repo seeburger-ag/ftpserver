@@ -28,7 +28,7 @@
   <artifactId>ftpserver-parent</artifactId>
   <packaging>pom</packaging>
   <name>Apache FtpServer Parent</name>
-  <version>1.0.6.SEE37</version>
+  <version>1.0.6.SEE38-SNAPSHOT</version>
   <url>http://mina.apache.org/ftpserver</url>
   <issueManagement>
     <system>Jira</system>
@@ -130,7 +130,7 @@
     <url>https://git.seeburger.de/summary/dt%2Fapache-ftpserver.git</url>
     <connection>scm:git:ssh://git.seeburger.de:29418/dt/apache-ftpserver</connection>
     <developerConnection>scm:git:ssh://git.seeburger.de:29418/dt/apache-ftpserver</developerConnection>
-    <tag>ftpserver-parent-1.0.6.SEE37</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <dependencyManagement>
