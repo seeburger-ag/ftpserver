@@ -308,13 +308,23 @@ public class IODataConnectionFactory implements ServerDataConnectionFactory {
                     SSLContext ctx = ssl.getSSLContext();
                     SSLSocketFactory socFactory = ctx.getSocketFactory();
 
-                    try {
+                    try
+                    {
                         dataSoc = (SSLSocket)socFactory.createSocket();
                         dataSoc.setReuseAddress(true);
                         dataSoc.bind(localSocketAddress);
                         dataSoc.connect(new InetSocketAddress(address, port), timeout);
 
                     } catch (Exception ex) {
+                        if (dataSoc != null) {
+                            try {
+                                dataSoc.close();
+                            } catch (Exception ex2) {
+                                LOG.warn("FtpDataConnection.closeDataSocket()", ex2);
+                            }
+                            dataSoc = null;
+                        }
+
                         // SEEBURGER: do not use createSocket without parameters due to an issue in SecureEdge
                         dataSoc = (SSLSocket)socFactory.createSocket(address, port, localAddr, localPort);
                         dataSoc.setReuseAddress(true);
@@ -341,7 +351,9 @@ public class IODataConnectionFactory implements ServerDataConnectionFactory {
 
                 } else {
                     if (dataConfig.getSocketFactory() != null) {
-                        try {
+
+                        try
+                        {
                             dataSoc = dataConfig.getSocketFactory().createSocket();
                             dataSoc.setReuseAddress(true);
                             dataSoc.bind(localSocketAddress);
@@ -349,10 +361,20 @@ public class IODataConnectionFactory implements ServerDataConnectionFactory {
                             dataSoc.connect(new InetSocketAddress(address, port), timeout);
 
                         } catch (Exception ex) {
+                            if (dataSoc != null) {
+                                try {
+                                    dataSoc.close();
+                                } catch (Exception ex2) {
+                                    LOG.warn("FtpDataConnection.closeDataSocket()", ex2);
+                                }
+                                dataSoc = null;
+                            }
+
                             // SEEBURGER: do not use createSocket without parameters due to an issue in SecureEdge
                             dataSoc = dataConfig.getSocketFactory().createSocket(address, port, localAddr, localPort);
                             dataSoc.setReuseAddress(true);
                         }
+
                     } else {
                         dataSoc = new Socket();
                         dataSoc.setReuseAddress(true);
