@@ -20,6 +20,7 @@
 package org.apache.ftpserver.message;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 
 import org.apache.ftpserver.message.impl.DefaultMessageResource;
@@ -42,9 +43,13 @@ public class MessageResourceFactory {
     public MessageResource createMessageResource() {
         return new DefaultMessageResource(languages, customMessageDirectory);
     }
-    
+
+    public MessageResource createMessageResource(InputStream in) {
+        return new DefaultMessageResource(languages, in);
+    }
+
     /**
-     * The languages for which messages are available 
+     * The languages for which messages are available
      * @return The list of available languages
      */
     public List<String> getLanguages() {
@@ -52,10 +57,10 @@ public class MessageResourceFactory {
     }
 
     /**
-     * Set the languages for which messages are available 
+     * Set the languages for which messages are available
      * @param languages The list of available languages
      */
-    
+
     public void setLanguages(List<String> languages) {
         this.languages = languages;
     }

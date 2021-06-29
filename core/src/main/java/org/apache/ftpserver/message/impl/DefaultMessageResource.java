@@ -39,12 +39,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <strong>Internal class, do not use directly.</strong>
- * 
+ *
  * Class to get FtpServer reply messages. This supports i18n. Basic message
  * search path is:
- * 
+ *
  * <strong><strong>Internal class, do not use directly.</strong></strong>
- * 
+ *
  * Custom Language Specific Messages -> Default Language Specific Messages ->
  * Custom Common Messages -> Default Common Messages -> null (not found)
  *
@@ -66,6 +66,19 @@ public class DefaultMessageResource implements MessageResource {
      */
     public DefaultMessageResource(List<String> languages,
             File customMessageDirectory) {
+        this(languages, customMessageDirectory, null);
+    }
+
+    /**
+     * Internal constructor, do not use directly. Use {@link MessageResourceFactory} instead.
+     */
+    public DefaultMessageResource(List<String> languages,
+            InputStream in) {
+        this(languages, null, in);
+    }
+
+    private DefaultMessageResource(List<String> languages,
+            File customMessageDirectory, InputStream in) {
         if(languages != null) {
             this.languages = Collections.unmodifiableList(languages);
         }
@@ -74,13 +87,12 @@ public class DefaultMessageResource implements MessageResource {
         messages = new HashMap<String, PropertiesPair>();
         if (languages != null) {
             for (String language : languages) {
-                PropertiesPair pair = createPropertiesPair(language, customMessageDirectory);
+                PropertiesPair pair = createPropertiesPair(language, customMessageDirectory, in);
                 messages.put(language, pair);
             }
         }
-        PropertiesPair pair = createPropertiesPair(null, customMessageDirectory);
+        PropertiesPair pair = createPropertiesPair(null, customMessageDirectory, in);
         messages.put(null, pair);
-
     }
 
     private static class PropertiesPair {
@@ -93,7 +105,7 @@ public class DefaultMessageResource implements MessageResource {
      * Create Properties pair object. It stores the default and the custom
      * messages.
      */
-    private PropertiesPair createPropertiesPair(String lang, File customMessageDirectory) {
+    private PropertiesPair createPropertiesPair(String lang, File customMessageDirectory, InputStream inArg) {
         PropertiesPair pair = new PropertiesPair();
 
         // load default resource
@@ -124,25 +136,44 @@ public class DefaultMessageResource implements MessageResource {
         }
 
         // load custom resource
-        File resourceFile = null;
-        if (lang == null) {
-            resourceFile = new File(customMessageDirectory, "FtpStatus.gen");
-        } else {
-            resourceFile = new File(customMessageDirectory, "FtpStatus_" + lang
-                    + ".gen");
-        }
-        in = null;
-        try {
-            if (resourceFile.exists()) {
-                in = new FileInputStream(resourceFile);
-                pair.customProperties.load(in);
+        if (inArg != null)
+        {
+            try
+            {
+                pair.customProperties.load(inArg);
             }
-        } catch (Exception ex) {
-            LOG.warn("MessageResourceImpl.createPropertiesPair()", ex);
-            throw new FtpServerConfigurationException(
-                    "MessageResourceImpl.createPropertiesPair()", ex);
-        } finally {
-            IoUtils.close(in);
+            catch (Exception ex)
+            {
+                LOG.warn("MessageResourceImpl.createPropertiesPair()", ex);
+                throw new FtpServerConfigurationException("MessageResourceImpl.createPropertiesPair()", ex);
+            }
+            finally
+            {
+                IoUtils.close(inArg);
+            }
+        }
+        else
+        {
+            File resourceFile = null;
+            if (lang == null) {
+                resourceFile = new File(customMessageDirectory, "FtpStatus.gen");
+            } else {
+                resourceFile = new File(customMessageDirectory, "FtpStatus_" + lang
+                        + ".gen");
+            }
+            in = null;
+            try {
+                if (resourceFile.exists()) {
+                    in = new FileInputStream(resourceFile);
+                    pair.customProperties.load(in);
+                }
+            } catch (Exception ex) {
+                LOG.warn("MessageResourceImpl.createPropertiesPair()", ex);
+                throw new FtpServerConfigurationException(
+                        "MessageResourceImpl.createPropertiesPair()", ex);
+            } finally {
+                IoUtils.close(in);
+            }
         }
 
         return pair;
@@ -218,12 +249,12 @@ public class DefaultMessageResource implements MessageResource {
                 messages.putAll(pair.customProperties);
             }
         }
-        
+
         Map<String, String> result = new HashMap<String, String>();
         for(Object key : messages.keySet()) {
             result.put(key.toString(), messages.getProperty(key.toString()));
         }
-        
+
         return Collections.unmodifiableMap(result);
     }
 
