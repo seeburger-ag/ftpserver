@@ -153,7 +153,7 @@ public class STOR extends AbstractCommand {
                     outStream.close();
                 }
 
-                LOG.info("File uploaded {}", fileName);
+                LOG.info("File uploaded {} transferred size {} file size {}", new Object[] {fileName, transSz, file.getSize()});
 
                 // notify the statistics component
                 ServerFtpStatistics ftpStat = (ServerFtpStatistics) context
