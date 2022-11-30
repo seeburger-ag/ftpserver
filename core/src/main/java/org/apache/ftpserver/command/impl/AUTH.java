@@ -48,6 +48,8 @@ public class AUTH extends AbstractCommand {
 
     private final Logger LOG = LoggerFactory.getLogger(AUTH.class);
 
+    public static final String DISABLE_ENCRYPTION_ONCE = "DISABLE_ENCRYPTION_ONCE";
+
     /**
      * Execute command
      */
@@ -128,7 +130,7 @@ public class AUTH extends AbstractCommand {
         SslConfiguration ssl = session.getListener().getSslConfiguration();
 
         if (ssl != null) {
-            session.setAttribute(SslFilter.DISABLE_ENCRYPTION_ONCE);
+            session.setAttribute(DISABLE_ENCRYPTION_ONCE);
 
             SslFilter sslFilter = null;
             if(ssl.getSslFilter()==null) {

@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <strong>Internal class, do not use directly.</strong>
- * 
+ *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a> *
  */
 public class FtpIoSession implements IoSession {
@@ -734,21 +734,16 @@ public class FtpIoSession implements IoSession {
 	}
 
 	public Certificate[] getClientCertificates() {
-		if (getFilterChain().contains(SslFilter.class)) {
-			SslFilter sslFilter = (SslFilter) getFilterChain().get(
-					SslFilter.class);
 
-			SSLSession sslSession = sslFilter.getSslSession(this);
+	    SSLSession sslSession = (SSLSession)getAttribute(SslFilter.SSL_SECURED);
 
-			if (sslSession != null) {
-				try {
-					return sslSession.getPeerCertificates();
-				} catch (SSLPeerUnverifiedException e) {
-					// ignore, certificate will not be available to the session
-				}
-			}
-
-		}
+        if (sslSession != null) {
+            try {
+                return sslSession.getPeerCertificates();
+            } catch (SSLPeerUnverifiedException e) {
+                // ignore, certificate will not be available to the session
+            }
+        }
 
 		// no certificates available
 		return null;
@@ -798,7 +793,7 @@ public class FtpIoSession implements IoSession {
 	/**
 	 * Indicates whether the control socket for this session is secure, that is,
 	 * running over SSL/TLS
-	 * 
+	 *
 	 * @return true if the control socket is secured
 	 */
 	public boolean isSecure() {
@@ -807,7 +802,7 @@ public class FtpIoSession implements IoSession {
 
 	/**
 	 * Increase the number of bytes written on the data connection
-	 * 
+	 *
 	 * @param increment
 	 *            The number of bytes written
 	 */
@@ -822,7 +817,7 @@ public class FtpIoSession implements IoSession {
 
 	/**
 	 * Increase the number of bytes read on the data connection
-	 * 
+	 *
 	 * @param increment
 	 *            The number of bytes written
 	 */
@@ -835,7 +830,7 @@ public class FtpIoSession implements IoSession {
 
 	/**
 	 * Returns the last reply that was sent to the client.
-	 * 
+	 *
 	 * @return the last reply that was sent to the client.
 	 */
 	public FtpReply getLastReply() {
@@ -891,5 +886,10 @@ public class FtpIoSession implements IoSession {
 
     public boolean isSecured() {
         return wrappedSession.isSecured();
+    }
+
+    public boolean isServer()
+    {
+        return wrappedSession.isServer();
     }
 }
