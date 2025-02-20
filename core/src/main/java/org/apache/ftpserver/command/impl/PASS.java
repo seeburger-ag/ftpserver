@@ -30,6 +30,7 @@ import org.apache.ftpserver.ftplet.FileSystemView;
 import org.apache.ftpserver.ftplet.FtpException;
 import org.apache.ftpserver.ftplet.FtpReply;
 import org.apache.ftpserver.ftplet.FtpRequest;
+import org.apache.ftpserver.ftplet.PolicyIPCheckViolationException;
 import org.apache.ftpserver.ftplet.User;
 import org.apache.ftpserver.ftplet.UserManager;
 import org.apache.ftpserver.impl.FtpIoSession;
@@ -44,13 +45,13 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <strong>Internal class, do not use directly.</strong>
- * 
+ *
  * <code>PASS &lt;SP&gt; <password> &lt;CRLF&gt;</code><br>
- * 
+ *
  * The argument field is a Telnet string specifying the user's password. This
  * command must be immediately preceded by the user name command.
  *
- * @author <a href="http://mina.apache.org">Apache MINA Project</a> 
+ * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class PASS extends AbstractCommand {
 
@@ -146,6 +147,9 @@ public class PASS extends AbstractCommand {
             // authenticate user
             UserManager userManager = context.getUserManager();
             User authenticatedUser = null;
+
+            boolean ipPolicyFailed = false;
+
             try {
                 UserMetadata userMetadata = new UserMetadata();
 
@@ -168,7 +172,14 @@ public class PASS extends AbstractCommand {
             } catch (AuthenticationFailedException e) {
                 authenticatedUser = null;
                 LOG.warn("User failed to log in");
-            } catch (Exception e) {
+            } catch (PolicyIPCheckViolationException ex)
+            {
+                ipPolicyFailed = true;
+                authenticatedUser = null;
+                LOG.warn("User failed to log in");
+            }
+
+            catch (Exception e) {
                 authenticatedUser = null;
                 LOG.warn("PASS.execute()", e);
             }
@@ -192,7 +203,7 @@ public class PASS extends AbstractCommand {
                     return;
                 }
 
-                
+
                 session.setUser(authenticatedUser);
                 session.setUserArgument(null);
                 session.setMaxIdleTime(authenticatedUser.getMaxIdleTime());
@@ -211,8 +222,19 @@ public class PASS extends AbstractCommand {
                         .getLoginFailureDelay());
 
                 LOG.warn("Login failure - " + userName);
-                session.write(LocalizedFtpReply.translate(session, request, context,
-                        FtpReply.REPLY_530_NOT_LOGGED_IN, "PASS", userName));
+
+                if (ipPolicyFailed)
+                {
+                    session.write(LocalizedFtpReply.translate(session, request, context,
+                                  FtpReply.REPLY_421_SERVICE_NOT_AVAILABLE_CLOSING_CONTROL_CONNECTION,
+                                  "PASS.ippolicy", null));
+                }
+                else
+                {
+                    session.write(LocalizedFtpReply.translate(session, request, context,
+                            FtpReply.REPLY_530_NOT_LOGGED_IN, "PASS", userName));
+                }
+
                 stat.setLoginFail(session);
 
                 session.increaseFailedLogins();

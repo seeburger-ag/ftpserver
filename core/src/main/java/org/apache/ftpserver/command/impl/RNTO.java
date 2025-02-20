@@ -26,6 +26,7 @@ import org.apache.ftpserver.ftplet.FtpException;
 import org.apache.ftpserver.ftplet.FtpFile;
 import org.apache.ftpserver.ftplet.FtpReply;
 import org.apache.ftpserver.ftplet.FtpRequest;
+import org.apache.ftpserver.ftplet.PolicyFileNameViolationException;
 import org.apache.ftpserver.impl.FtpIoSession;
 import org.apache.ftpserver.impl.FtpServerContext;
 import org.apache.ftpserver.impl.LocalizedFtpReply;
@@ -129,22 +130,38 @@ public class RNTO extends AbstractCommand {
             String logFrFileAbsolutePath = frFile.getAbsolutePath();
 
             // now rename
-            if (frFile.move(toFile)) {
-                session.write(LocalizedFtpReply.translate(session, request, context,
-                        FtpReply.REPLY_250_REQUESTED_FILE_ACTION_OKAY, "RNTO",
-                        toFileStr));
 
-                LOG.info("File rename from \"{}\" to \"{}\"", logFrFileAbsolutePath,
-                        toFile.getAbsolutePath());
-            } else {
+            try
+            {
+                if (frFile.move(toFile)) {
+                    session.write(LocalizedFtpReply.translate(session, request, context,
+                            FtpReply.REPLY_250_REQUESTED_FILE_ACTION_OKAY, "RNTO",
+                            toFileStr));
+
+                    LOG.info("File rename from \"{}\" to \"{}\"", logFrFileAbsolutePath,
+                            toFile.getAbsolutePath());
+                } else {
+                    session
+                            .write(LocalizedFtpReply
+                                    .translate(
+                                            session,
+                                            request,
+                                            context,
+                                            FtpReply.REPLY_553_REQUESTED_ACTION_NOT_TAKEN_FILE_NAME_NOT_ALLOWED,
+                                            "RNTO", toFileStr));
+                }
+            }
+            catch(PolicyFileNameViolationException ex)
+            {
                 session
-                        .write(LocalizedFtpReply
-                                .translate(
-                                        session,
-                                        request,
-                                        context,
-                                        FtpReply.REPLY_553_REQUESTED_ACTION_NOT_TAKEN_FILE_NAME_NOT_ALLOWED,
-                                        "RNTO", toFileStr));
+                .write(LocalizedFtpReply
+                        .translate(
+                                session,
+                                request,
+                                context,
+                                FtpReply.REPLY_553_REQUESTED_ACTION_NOT_TAKEN_FILE_NAME_NOT_ALLOWED,
+                                "RNTO.policy",
+                                PolicyFileNameViolationException.MESSAGE + toFileStr));
             }
 
         } finally {

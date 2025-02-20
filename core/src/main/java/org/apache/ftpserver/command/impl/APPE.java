@@ -32,6 +32,9 @@ import org.apache.ftpserver.ftplet.FtpException;
 import org.apache.ftpserver.ftplet.FtpFile;
 import org.apache.ftpserver.ftplet.FtpReply;
 import org.apache.ftpserver.ftplet.FtpRequest;
+import org.apache.ftpserver.ftplet.PolicyFileNameViolationException;
+import org.apache.ftpserver.ftplet.PolicyFileSizeViolationException;
+import org.apache.ftpserver.ftplet.PolicyQuotaViolationException;
 import org.apache.ftpserver.impl.FtpIoSession;
 import org.apache.ftpserver.impl.FtpServerContext;
 import org.apache.ftpserver.impl.IODataConnectionFactory;
@@ -201,7 +204,53 @@ public class APPE extends AbstractCommand {
                                         FtpReply.REPLY_551_REQUESTED_ACTION_ABORTED_PAGE_TYPE_UNKNOWN,
                                         "APPE", fileName));
                 setSessionException(session, e);
-            } finally {
+            }
+            catch (PolicyFileNameViolationException e) {
+                LOG.debug("PolicyFileNameViolationException during file upload", e);
+                failure = true;
+
+                session
+                        .write(LocalizedFtpReply
+                                .translate(
+                                        session,
+                                        request,
+                                        context,
+                                        FtpReply.REPLY_553_REQUESTED_ACTION_NOT_TAKEN_FILE_NAME_NOT_ALLOWED,
+                                        "APPE.policy",
+                                        PolicyFileNameViolationException.MESSAGE + fileName));
+                setSessionException(session, e);
+            }
+            catch (PolicyFileSizeViolationException e) {
+                LOG.debug("PolicyFileSizeViolationException during file upload", e);
+                failure = true;
+
+                session
+                        .write(LocalizedFtpReply
+                                .translate(
+                                        session,
+                                        request,
+                                        context,
+                                        FtpReply.REPLY_551_REQUESTED_ACTION_ABORTED_PAGE_TYPE_UNKNOWN,
+                                        "APPE.policy",
+                                        PolicyFileSizeViolationException.MESSAGE + fileName));
+                setSessionException(session, e);
+            }
+            catch (PolicyQuotaViolationException e) {
+                LOG.debug("PolicyQuotaViolationException during file upload", e);
+                failure = true;
+
+                session
+                        .write(LocalizedFtpReply
+                                .translate(
+                                        session,
+                                        request,
+                                        context,
+                                        FtpReply.REPLY_551_REQUESTED_ACTION_ABORTED_PAGE_TYPE_UNKNOWN,
+                                        "APPE.policy",
+                                        PolicyQuotaViolationException.MESSAGE + fileName));
+                setSessionException(session, e);
+            }
+            finally {
                 // make sure we really close the output stream
                 IoUtils.close(os);
             }
