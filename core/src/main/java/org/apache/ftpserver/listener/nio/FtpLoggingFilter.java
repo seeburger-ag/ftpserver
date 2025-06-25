@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <strong>Internal class, do not use directly.</strong>
- * 
+ *
  * Specialized @see {@link LoggingFilter} that optionally masks FTP passwords.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
@@ -37,7 +37,7 @@ public class FtpLoggingFilter extends LoggingFilter {
     private boolean maskPassword = true;
 
     private final Logger logger;
-    
+
     /**
      * @see LoggingFilter#LoggingFilter()
      */
@@ -57,7 +57,7 @@ public class FtpLoggingFilter extends LoggingFilter {
      */
     public FtpLoggingFilter(String name) {
         super(name);
-        
+
         logger = LoggerFactory.getLogger(name);
 
         // SEEBURGER: Fixed logging levels
@@ -84,7 +84,11 @@ public class FtpLoggingFilter extends LoggingFilter {
 
             if (request.trim().toUpperCase().startsWith("PASS ")) {
                 logMessage = "PASS *****";
-            } else {
+            }
+            else if (request.trim().toUpperCase().startsWith("SITE CHPWD")) {
+                logMessage = "SITE CHPWD *****";
+            }
+            else {
                 logMessage = request;
             }
         } else {
@@ -97,7 +101,7 @@ public class FtpLoggingFilter extends LoggingFilter {
 
     /**
      * Are password masked?
-     * 
+     *
      * @return true if passwords are masked
      */
     public boolean isMaskPassword() {
@@ -106,7 +110,7 @@ public class FtpLoggingFilter extends LoggingFilter {
 
     /**
      * Mask password in log messages
-     * 
+     *
      * @param maskPassword
      *            true if passwords should be masked
      */
