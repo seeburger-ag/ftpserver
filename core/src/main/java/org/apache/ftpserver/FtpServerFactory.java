@@ -29,14 +29,15 @@ import org.apache.ftpserver.ftplet.UserManager;
 import org.apache.ftpserver.ftpletcontainer.impl.DefaultFtpletContainer;
 import org.apache.ftpserver.impl.DefaultFtpServer;
 import org.apache.ftpserver.impl.DefaultFtpServerContext;
+import org.apache.ftpserver.impl.ServerFtpStatistics;
 import org.apache.ftpserver.listener.Listener;
 import org.apache.ftpserver.message.MessageResource;
 
 /**
- * This is the starting point of all the servers. Creates server instances based on 
- * the provided configuration. 
+ * This is the starting point of all the servers. Creates server instances based on
+ * the provided configuration.
  *
- * @author <a href="http://mina.apache.org">Apache MINA Project</a> 
+ * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class FtpServerFactory {
 
@@ -44,7 +45,7 @@ public class FtpServerFactory {
 
     /**
      * Creates a server with the default configuration
-     * 
+     *
      * @throws Exception
      */
     public FtpServerFactory() {
@@ -59,10 +60,10 @@ public class FtpServerFactory {
     public FtpServer createServer() {
         return new DefaultFtpServer(serverContext);
     }
-    
+
     /**
      * Get all listeners available on servers created by this factory
-     * 
+     *
      * @return The current listeners
      */
     public Map<String, Listener> getListeners() {
@@ -71,7 +72,7 @@ public class FtpServerFactory {
 
     /**
      * Get a specific {@link Listener} identified by its name
-     * 
+     *
      * @param name
      *            The name of the listener
      * @return The {@link Listener} matching the provided name
@@ -91,7 +92,7 @@ public class FtpServerFactory {
 
     /**
      * Set the listeners for servers created by this factory, replaces existing listeners
-     * 
+     *
      * @param listeners
      *            The listeners to use for this server with the name as the key
      *            and the listener as the value
@@ -104,7 +105,7 @@ public class FtpServerFactory {
 
     /**
      * Get all {@link Ftplet}s registered by servers created by this factory
-     * 
+     *
      * @return All {@link Ftplet}s
      */
     public Map<String, Ftplet> getFtplets() {
@@ -114,12 +115,12 @@ public class FtpServerFactory {
     /**
      * Set the {@link Ftplet}s to be active by servers created by this factory. Replaces existing
      * {@link Ftplet}s
-     * 
+     *
      * @param ftplets
      *            Ftplets as a map with the name as the key and the Ftplet as
      *            the value. The Ftplet container will iterate over the map in the
      *            order provided by the Map. If invocation order of Ftplets is of importance,
-     *            make sure to provide a ordered Map, for example {@link LinkedHashMap}. 
+     *            make sure to provide a ordered Map, for example {@link LinkedHashMap}.
      * @throws IllegalStateException
      *             If a custom server context has been set
      */
@@ -129,7 +130,7 @@ public class FtpServerFactory {
 
     /**
      * Retrieve the user manager used by servers created by this factory
-     * 
+     *
      * @return The user manager
      */
     public UserManager getUserManager() {
@@ -138,7 +139,7 @@ public class FtpServerFactory {
 
     /**
      * Set the user manager to be used by servers created by this factory
-     * 
+     *
      * @param userManager
      *            The {@link UserManager}
      * @throws IllegalStateException
@@ -150,7 +151,7 @@ public class FtpServerFactory {
 
     /**
      * Retrieve the file system used by servers created by this factory
-     * 
+     *
      * @return The {@link FileSystemFactory}
      */
     public FileSystemFactory getFileSystem() {
@@ -159,7 +160,7 @@ public class FtpServerFactory {
 
     /**
      * Set the file system to be used by servers created by this factory
-     * 
+     *
      * @param fileSystem
      *            The {@link FileSystemFactory}
      * @throws IllegalStateException
@@ -171,7 +172,7 @@ public class FtpServerFactory {
 
     /**
      * Retrieve the command factory used by servers created by this factory
-     * 
+     *
      * @return The {@link CommandFactory}
      */
     public CommandFactory getCommandFactory() {
@@ -180,7 +181,7 @@ public class FtpServerFactory {
 
     /**
      * Set the command factory to be used by servers created by this factory
-     * 
+     *
      * @param commandFactory
      *            The {@link CommandFactory}
      * @throws IllegalStateException
@@ -192,7 +193,7 @@ public class FtpServerFactory {
 
     /**
      * Retrieve the message resource used by servers created by this factory
-     * 
+     *
      * @return The {@link MessageResource}
      */
     public MessageResource getMessageResource() {
@@ -201,7 +202,7 @@ public class FtpServerFactory {
 
     /**
      * Set the message resource to be used with by servers created by this factory
-     * 
+     *
      * @param messageResource
      *            The {@link MessageResource}
      * @throws IllegalStateException
@@ -213,7 +214,7 @@ public class FtpServerFactory {
 
     /**
      * Retrieve the connection configuration this server
-     * 
+     *
      * @return The {@link MessageResource}
      */
     public ConnectionConfig getConnectionConfig() {
@@ -224,7 +225,7 @@ public class FtpServerFactory {
      * Set the message resource to be used with this server
      * @param connectionConfig The {@link ConnectionConfig} to be used
      *  by servers created by this factory
-     * 
+     *
      * @param messageResource
      *            The {@link MessageResource}
      * @throws IllegalStateException
@@ -232,5 +233,21 @@ public class FtpServerFactory {
      */
     public void setConnectionConfig(final ConnectionConfig connectionConfig) {
         serverContext.setConnectionConfig(connectionConfig);
+    }
+
+    /***
+     *
+     * @return
+     */
+    public ServerFtpStatistics getFtpStatistics() {
+        return (ServerFtpStatistics)serverContext.getFtpStatistics();
+    }
+
+    /***
+     *
+     * @param statistics
+     */
+    public void setFtpStatistics(ServerFtpStatistics statistics) {
+        serverContext.setFtpStatistics(statistics);
     }
 }
