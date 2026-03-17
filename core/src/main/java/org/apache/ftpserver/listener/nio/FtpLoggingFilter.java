@@ -88,6 +88,9 @@ public class FtpLoggingFilter extends LoggingFilter {
             else if (request.trim().toUpperCase().startsWith("SITE CHPWD")) {
                 logMessage = "SITE CHPWD *****";
             }
+            else if (request.trim().toUpperCase().startsWith("USER ")) {
+                logMessage = "USER *****";
+            }
             else {
                 logMessage = request;
             }
