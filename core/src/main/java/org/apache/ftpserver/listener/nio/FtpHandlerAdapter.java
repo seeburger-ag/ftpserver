@@ -25,6 +25,7 @@ import org.apache.ftpserver.impl.DefaultFtpRequest;
 import org.apache.ftpserver.impl.FtpHandler;
 import org.apache.ftpserver.impl.FtpIoSession;
 import org.apache.ftpserver.impl.FtpServerContext;
+import org.apache.ftpserver.ssl.FTPSslFilterCustom;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
@@ -70,8 +71,13 @@ public class FtpHandlerAdapter implements IoHandler {
     }
 
     public void sessionClosed(IoSession session) throws Exception {
-        FtpIoSession ftpSession = new FtpIoSession(session, context);
-        ftpHandler.sessionClosed(ftpSession);
+
+        // SEEBURGER: bug 223751
+        if (session.getAttribute(FTPSslFilterCustom.SSL_FILTER_SESSION_CLOSED_HANDLED) == null)
+        {
+            FtpIoSession ftpSession = new FtpIoSession(session, context);
+            ftpHandler.sessionClosed(ftpSession);
+        }
     }
 
     public void sessionCreated(IoSession session) throws Exception {

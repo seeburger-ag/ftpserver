@@ -71,7 +71,7 @@ public class FtpIoSession implements IoSession {
 	private static final String ATTRIBUTE_SESSION_ID = ATTRIBUTE_PREFIX
 			+ "session-id";
 
-	private static final String ATTRIBUTE_USER = ATTRIBUTE_PREFIX + "user";
+	public static final String ATTRIBUTE_USER = ATTRIBUTE_PREFIX + "user";
 
 	private static final String ATTRIBUTE_LANGUAGE = ATTRIBUTE_PREFIX
 			+ "language";
